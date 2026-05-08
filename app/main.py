@@ -82,6 +82,30 @@ async def stop_job(job_id: str):
     return {"ok": True}
 
 
+@app.post("/pause/{job_id}")
+async def pause_job(job_id: str):
+    if job_id in jobs:
+        proc = jobs[job_id].get("process")
+        if proc and proc.returncode is None:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGSTOP)
+            except Exception:
+                pass
+    return {"ok": True}
+
+
+@app.post("/resume/{job_id}")
+async def resume_job(job_id: str):
+    if job_id in jobs:
+        proc = jobs[job_id].get("process")
+        if proc and proc.returncode is None:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGCONT)
+            except Exception:
+                pass
+    return {"ok": True}
+
+
 if __name__ == "__main__":
     def _open_browser():
         import time
