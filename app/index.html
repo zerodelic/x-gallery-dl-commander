@@ -53,9 +53,9 @@ h1 { font-family: var(--mono); font-size: clamp(16px, 2.8vw, 24px); color: var(-
 /* ── Layout ── */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .grid.triple { grid-template-columns: 1fr 1fr 1fr; }
-.grid-main { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .full { grid-column: 1 / -1; }
-.main-layout { display: grid; grid-template-columns: 1fr 288px; gap: 16px; align-items: start; }
+.main-layout { display: grid; grid-template-columns: 1fr 440px; gap: 16px; align-items: start; }
 .form-col { min-width: 0; }
 .side-col { position: sticky; top: 16px; }
 
@@ -194,7 +194,6 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 
 /* Responsive */
 @media (max-width: 1000px) { .main-layout { grid-template-columns: 1fr; } .side-col { position: static; } }
-@media (max-width: 860px)  { .grid-main { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 560px)  { .grid { grid-template-columns: 1fr; } .grid-main { grid-template-columns: 1fr; } }
 
 /* ── Run button ── */
@@ -214,6 +213,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .prog-btn { width:24px; height:24px; border:1px solid #304258; border-radius:4px; background:transparent; color:#94a3b8; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
 .prog-btn:hover:not(:disabled) { border-color:#38bdf8; color:#38bdf8; }
 .prog-btn.stop:hover:not(:disabled) { border-color:#f87171; color:#f87171; }
+.prog-btn.run:hover:not(:disabled) { border-color:#4ade80; color:#4ade80; }
 .prog-btn:disabled { opacity:0.3; cursor:not-allowed; }
 .file-list { font-family:var(--mono); overflow-y:auto; max-height:calc(100vh - 260px); min-height:220px; }
 .file-header-row { display:grid; grid-template-columns:26px 1fr 52px 58px; gap:4px; padding:4px 10px; border-bottom:1px solid #304258; background:#223042; }
@@ -393,47 +393,6 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
       </div>
     </div>
 
-    <!-- Filename -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">📝</span>
-        <span class="card-title">ファイル名形式</span>
-      </div>
-      <div class="card-body">
-        <div class="field">
-          <div class="toggle-group" id="fname-group">
-            <button class="toggle-btn active" onclick="setFilename('default', this)">標準</button>
-            <button class="toggle-btn" onclick="setFilename('date', this)">日付入り</button>
-            <button class="toggle-btn" onclick="setFilename('custom', this)">カスタム</button>
-          </div>
-        </div>
-        <div class="field" id="field-custom-fname" style="display:none">
-          <label>カスタムパターン</label>
-          <input type="text" id="custom-fname" value="{user[name]}_{tweet_id}_{num}.{extension}" oninput="buildCommand()">
-        </div>
-        <div class="notice info" id="fname-preview" style="font-size:10px;margin-top:8px"></div>
-      </div>
-    </div>
-
-    <!-- Save dir -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">📁</span>
-        <span class="card-title">保存先</span>
-      </div>
-      <div class="card-body">
-        <div class="field">
-          <label>ディレクトリ</label>
-          <input type="text" id="directory" value="~/Downloads/x_media" oninput="buildCommand()">
-        </div>
-        <div class="toggle-group">
-          <button class="toggle-btn" onclick="setDir('~/Downloads/x_media')">Downloads</button>
-          <button class="toggle-btn" onclick="setDir('~/Desktop/x_media')">Desktop</button>
-          <button class="toggle-btn" onclick="setDir('~/Pictures/x_media')">Pictures</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Options -->
     <div class="card">
       <div class="card-header">
@@ -484,6 +443,44 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
       </div>
     </div>
 
+    <!-- Filename + Save dir (merged, full width) -->
+    <div class="card full">
+      <div class="card-header">
+        <span class="card-icon">📝</span>
+        <span class="card-title">ファイル名形式 / 保存先</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div>
+            <div class="field">
+              <label>ファイル名形式</label>
+              <div class="toggle-group" id="fname-group">
+                <button class="toggle-btn active" onclick="setFilename('default', this)">標準</button>
+                <button class="toggle-btn" onclick="setFilename('date', this)">日付入り</button>
+                <button class="toggle-btn" onclick="setFilename('custom', this)">カスタム</button>
+              </div>
+            </div>
+            <div class="field" id="field-custom-fname" style="display:none">
+              <label>カスタムパターン</label>
+              <input type="text" id="custom-fname" value="{user[name]}_{tweet_id}_{num}.{extension}" oninput="buildCommand()">
+            </div>
+            <div class="notice info" id="fname-preview" style="font-size:10px;margin-top:6px"></div>
+          </div>
+          <div>
+            <div class="field">
+              <label>保存先ディレクトリ</label>
+              <input type="text" id="directory" value="~/Downloads/x_media" oninput="buildCommand()">
+            </div>
+            <div class="toggle-group" style="margin-top:8px">
+              <button class="toggle-btn" onclick="setDir('~/Downloads/x_media')">Downloads</button>
+              <button class="toggle-btn" onclick="setDir('~/Desktop/x_media')">Desktop</button>
+              <button class="toggle-btn" onclick="setDir('~/Pictures/x_media')">Pictures</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Command Output -->
@@ -493,12 +490,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
       <div class="dot dot-yellow"></div>
       <div class="dot dot-green"></div>
       <div class="cmd-output-title" style="margin-left:8px">// 生成されたコマンド</div>
-      <span style="font-family:var(--mono);font-size:10px;color:var(--text-mid)">▼ 確認してから実行ボタンを押してください</span>
+
     </div>
     <div class="cmd-text" id="cmd-output"></div>
     <div class="cmd-actions">
       <button class="btn btn-primary" id="copy-btn" onclick="copyCommand()">📋 コピー</button>
-      <button class="btn btn-run" id="run-btn" onclick="startDownload()">▶ ダウンロード開始</button>
       <button class="btn btn-secondary" onclick="resetAll()">↺ リセット</button>
     </div>
   </div>
@@ -518,6 +514,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
         <div class="dot dot-green"></div>
         <span class="progress-title" style="margin-left:6px">// ダウンロード進捗</span>
         <span id="progress-status" class="progress-status">待機中</span>
+        <button class="prog-btn run" id="run-btn" onclick="startDownload()" title="ダウンロード開始">▶</button>
         <button class="prog-btn" id="pause-btn" onclick="pauseDownload()" title="一時停止" disabled>⏸</button>
         <button class="prog-btn stop" id="stop-btn" onclick="stopDownload()" title="停止" disabled>■</button>
       </div>
