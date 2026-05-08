@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gallery-dl Commander</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07090e;
+  --surface: #0d1018;
+  --surface2: #111520;
+  --surface3: #161b28;
+  --border: #1a1f2a;
+  --border2: #252d3d;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.15);
+  --accent-glow: rgba(0,212,255,0.4);
+  --accent2: #0099bb;
+  --accent2-dim: rgba(0,153,187,0.12);
+  --accent3: #ffffff;
+  --accent3-dim: rgba(255,255,255,0.08);
+  --warn: #ffcc00;
+  --text: #e0eef8;
+  --text-dim: #7a9ab8;
+  --text-mid: #aac4d8;
+  --mono: 'Share Tech Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scan-line overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.13;
+  pointer-events: none; z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(180,0,0,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(0,0,0,0.6) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.app {
+  position: relative; z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* ── Header ── */
+header { margin-bottom: 40px; }
+.logo-row { display: flex; align-items: baseline; gap: 16px; margin-bottom: 6px; }
+h1 {
+  font-family: var(--mono);
+  font-size: clamp(20px, 4vw, 28px);
+  color: var(--accent);
+  text-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(0,212,255,0.1);
+  letter-spacing: 4px;
+}
+.version-tag {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-dim); letter-spacing: 2px;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 3px;
+}
+.tagline { font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; }
+
+/* ── Grid layout ── */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+.full { grid-column: 1 / -1; }
+
+/* ── Card ── */
+.card {
+  background: rgba(14,10,10,0.88);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  backdrop-filter: blur(6px);
+}
+.card:focus-within { border-color: rgba(255,32,32,0.5); }
+
+.card-header {
+  background: rgba(20,10,10,0.9);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.card-icon { font-size: 16px; }
+.card-title {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+}
+.card-body { padding: 16px; }
+
+/* ── Form elements ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+label {
+  display: block;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-mid); letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+label .hint {
+  color: var(--text-mid); font-size: 9px; margin-left: 6px; text-transform: none; letter-spacing: 0;
+}
+
+input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: var(--mono); font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
+}
+input[type="text"]::placeholder { color: var(--text-dim); }
+
+/* Toggle group */
+.toggle-group { display: flex; gap: 2px; flex-wrap: wrap; }
+.toggle-btn {
+  padding: 7px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  font-family: var(--mono); font-size: 11px;
+  cursor: pointer; border-radius: 5px;
+  transition: all 0.15s; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.toggle-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.toggle-btn.active.orange {
+  background: var(--accent2-dim);
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.toggle-btn.active.green {
+  background: var(--accent3-dim);
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+
+/* Range slider */
+.range-wrap { display: flex; align-items: center; gap: 12px; }
+input[type="range"] {
+  flex: 1; -webkit-appearance: none;
+  height: 4px; border-radius: 2px;
+  background: var(--border2); outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  cursor: pointer;
+}
+.range-val {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--accent); min-width: 48px; text-align: right;
+}
+
+/* Switch */
+.switch-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.switch-row:last-child { border-bottom: none; }
+.switch-label { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.switch-desc { font-size: 10px; color: var(--text-mid); margin-top: 2px; }
+
+.switch {
+  position: relative; width: 36px; height: 20px; flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-track {
+  position: absolute; inset: 0;
+  background: var(--border2); border-radius: 10px;
+  cursor: pointer; transition: background 0.2s;
+}
+.switch input:checked + .switch-track { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.switch-track::after {
+  content: '';
+  position: absolute; left: 3px; top: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; transition: transform 0.2s;
+}
+.switch input:checked + .switch-track::after { transform: translateX(16px); }
+
+/* ── Command output ── */
+.cmd-output {
+  background: rgba(2,1,1,0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 24px;
+  box-shadow: 0 0 40px rgba(255,32,32,0.08);
+  backdrop-filter: blur(6px);
+}
+
+.cmd-output-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cmd-output-title { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 2px; flex: 1; }
+
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #28ca41; }
+
+.cmd-text {
+  padding: 20px;
+  font-family: var(--mono); font-size: 12px;
+  line-height: 1.9; min-height: 80px;
+  color: var(--text);
+  white-space: pre-wrap; word-break: break-all;
+}
+.cmd-text .kw { color: #ff6b35; }
+.cmd-text .flag { color: #00d4ff; }
+.cmd-text .val { color: #ffffff; }
+.cmd-text .url { color: #ffaaaa; }
+.cmd-text .cont { color: var(--text-mid); }
+
+.cmd-actions {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; align-items: center;
+}
+
+/* Buttons */
+.btn {
+  padding: 9px 20px;
+  border: none; border-radius: 6px;
+  font-family: var(--mono); font-size: 11px;
+  cursor: pointer; letter-spacing: 1px;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+}
+.btn-primary {
+  background: var(--accent); color: #000; font-weight: bold;
+}
+.btn-primary:hover { background: #33deff; box-shadow: 0 0 20px var(--accent-glow); }
+.btn-primary.copied { background: var(--accent3); color: #000; }
+
+.btn-secondary {
+  background: transparent; color: var(--text-mid);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-danger {
+  background: transparent; color: #ff7070;
+  border: 1px solid rgba(255,80,80,0.3);
+}
+.btn-danger:hover { background: rgba(255,80,80,0.1); }
+
+/* Quick presets */
+.presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.preset-btn {
+  padding: 6px 14px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-mid); font-family: var(--mono); font-size: 10px;
+  border-radius: 20px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px;
+}
+.preset-btn:hover { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-dim); }
+
+/* Notice */
+.notice {
+  padding: 10px 14px; border-radius: 6px;
+  font-size: 11px; line-height: 1.8; margin-top: 12px;
+  font-family: var(--mono);
+}
+.notice.info { background: var(--accent-dim); border: 1px solid rgba(0,212,255,0.2); color: var(--text-mid); }
+.notice.warn { background: rgba(255,204,0,0.07); border: 1px solid rgba(255,204,0,0.25); color: #d4b040; }
+
+/* Section label */
+.sec-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-mid); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-label::before { content: '//'; color: var(--text-dim); }
+
+/* ── Checkbox group ── */
+.cb-group { display: flex; flex-direction: column; gap: 6px; }
+.cb-row {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; padding: 7px 10px;
+  border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface2);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+.cb-row:hover { border-color: var(--border2); background: var(--surface3); }
+.cb-row input[type="checkbox"] { display: none; }
+.cb-box {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 2px solid var(--border2); background: var(--surface);
+  flex-shrink: 0; position: relative; transition: all 0.15s;
+}
+.cb-row input:checked + .cb-box {
+  background: var(--accent); border-color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+.cb-row input:checked + .cb-box::after {
+  content: '✓'; position: absolute;
+  inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #000; font-size: 11px; font-weight: bold; font-family: var(--mono);
+}
+.cb-label { font-family: var(--mono); font-size: 11px; color: var(--text-mid); }
+.cb-row:has(input:checked) .cb-label { color: var(--text); }
+
+/* ── Date inputs ── */
+.date-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.date-field { flex: 1; }
+.date-sep {
+  font-family: var(--mono); font-size: 13px; color: var(--text-mid);
+  flex-shrink: 0; padding-top: 20px;
+}
+.date-input {
+  width: 100%;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 6px; padding: 8px 10px;
+  color: var(--text); font-family: var(--mono); font-size: 12px;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  color-scheme: dark;
+}
+.date-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.date-input::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+
+.quick-dates { display: flex; flex-wrap: wrap; gap: 6px; }
+.date-enable-row { margin-bottom: 4px; }
+
+/* Keyboard shortcut badge */
+.kbd {
+  display: inline-block;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 3px; padding: 1px 5px;
+  font-family: var(--mono); font-size: 10px; color: var(--text-mid);
+}
+
+/* Anim */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.card { animation: fadeIn 0.4s ease forwards; }
+.card:nth-child(2) { animation-delay: 0.05s; opacity: 0; }
+.card:nth-child(3) { animation-delay: 0.1s; opacity: 0; }
+.card:nth-child(4) { animation-delay: 0.15s; opacity: 0; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+  .grid.triple { grid-template-columns: 1fr; }
+}
+
+/* ── App execution additions ── */
+.btn-run { background: linear-gradient(135deg,#00b894,#00cec9); color:#07090e; font-weight:700; }
+.btn-run:hover { filter: brightness(1.15); }
+.btn-run:disabled { opacity:.4; cursor:not-allowed; filter:none; }
+
+.progress-panel {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+.progress-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 11px;
+}
+.progress-title { color: var(--accent); letter-spacing: 2px; flex: 1; }
+.progress-status { font-size: 10px; color: var(--text-mid); }
+.progress-status.running { color: #00d4ff; }
+.progress-status.done { color: #00b894; }
+.progress-status.error { color: #ff6b6b; }
+.progress-log {
+  font-family: var(--mono); font-size: 12px; color: var(--text);
+  padding: 12px; height: 260px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-all; line-height: 1.6;
+}
+.log-line { display: block; }
+.log-line.err { color: #ff6b6b; }
+.log-line.ok  { color: #00b894; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-row">
+      <h1>GALLERY-DL</h1>
+      <span class="version-tag">COMMANDER</span>
+    </div>
+    <div class="tagline">// X (Twitter) メディア一括ダウンロード コマンドビルダー</div>
+  </header>
+
+  <!-- Quick Presets -->
+  <div class="sec-label">クイックプリセット</div>
+  <div class="presets">
+    <button class="preset-btn" onclick="applyPreset('hashtag_image')">📷 ハッシュタグ・画像のみ</button>
+    <button class="preset-btn" onclick="applyPreset('hashtag_video')">🎬 ハッシュタグ・動画のみ</button>
+    <button class="preset-btn" onclick="applyPreset('hashtag_all')">📦 ハッシュタグ・全メディア</button>
+    <button class="preset-btn" onclick="applyPreset('user_media')">👤 ユーザーのメディアタブ</button>
+    <button class="preset-btn" onclick="applyPreset('user_likes')">❤️ ユーザーのいいね</button>
+  </div>
+
+  <!-- Form Grid -->
+  <div class="grid" style="margin-bottom:16px">
+
+    <!-- Target -->
+    <div class="card full">
+      <div class="card-header">
+        <span class="card-icon">🎯</span>
+        <span class="card-title">取得対象</span>
+      </div>
+      <div class="card-body">
+        <div class="grid">
+          <div class="field">
+            <label>取得タイプ</label>
+            <div class="toggle-group" id="type-group">
+              <button class="toggle-btn active" onclick="setType('hashtag', this)">＃ ハッシュタグ</button>
+              <button class="toggle-btn" onclick="setType('user_media', this)">👤 ユーザー メディア</button>
+              <button class="toggle-btn" onclick="setType('user_likes', this)">❤️ ユーザー いいね</button>
+              <button class="toggle-btn" onclick="setType('tweet', this)">📌 単一ツイート</button>
+            </div>
+          </div>
+          <div class="field" id="field-hashtag">
+            <label>ハッシュタグ <span class="hint">（# 不要・複数はカンマ区切り）</span></label>
+            <input type="text" id="hashtag" placeholder="風景写真, landscape, 写真好きな人と繋がりたい" oninput="buildCommand()">
+          </div>
+          <div class="field" id="field-username" style="display:none">
+            <label>ユーザー名 <span class="hint">（@ 不要）</span></label>
+            <input type="text" id="username" placeholder="username" oninput="buildCommand()">
+          </div>
+          <div class="field" id="field-tweeturl" style="display:none">
+            <label>ツイートURL</label>
+            <input type="text" id="tweeturl" placeholder="https://x.com/user/status/..." oninput="buildCommand()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media filter -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🖼</span>
+        <span class="card-title">メディア種別</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>ダウンロードする種別を選択</label>
+          <div class="cb-group">
+            <label class="cb-row">
+              <input type="checkbox" id="cb-photo" checked onchange="buildCommand()">
+              <span class="cb-box"></span>
+              <span class="cb-label">📷 写真（jpg / png / webp）</span>
+            </label>
+            <label class="cb-row">
+              <input type="checkbox" id="cb-video" checked onchange="buildCommand()">
+              <span class="cb-box"></span>
+              <span class="cb-label">🎬 動画（mp4）</span>
+            </label>
+            <label class="cb-row">
+              <input type="checkbox" id="cb-gif" onchange="buildCommand()">
+              <span class="cb-box"></span>
+              <span class="cb-label">🎞 GIFアニメ（gif）</span>
+            </label>
+          </div>
+        </div>
+        <div class="notice warn" id="cb-warn" style="display:none">
+          ⚠️ 少なくとも1つ選択してください
+        </div>
+      </div>
+    </div>
+
+    <!-- Date range -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">📅</span>
+        <span class="card-title">投稿日付の範囲</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>期間指定 <span class="hint">（空欄 = 制限なし）</span></label>
+          <div class="date-enable-row">
+            <label class="cb-row" style="margin-bottom:10px">
+              <input type="checkbox" id="date-enabled" onchange="toggleDateUI()">
+              <span class="cb-box"></span>
+              <span class="cb-label">日付範囲を指定する</span>
+            </label>
+          </div>
+          <div id="date-fields" style="display:none">
+            <div class="date-row">
+              <div class="date-field">
+                <label style="margin-bottom:4px">開始日（以降）</label>
+                <input type="date" id="date-after" onchange="buildCommand()" class="date-input">
+              </div>
+              <div class="date-sep">〜</div>
+              <div class="date-field">
+                <label style="margin-bottom:4px">終了日（以前）</label>
+                <input type="date" id="date-before" onchange="buildCommand()" class="date-input">
+              </div>
+            </div>
+            <div class="quick-dates">
+              <button class="preset-btn" onclick="setDatePreset('this_month')">今月</button>
+              <button class="preset-btn" onclick="setDatePreset('last_month')">先月</button>
+              <button class="preset-btn" onclick="setDatePreset('last_30')">直近30日</button>
+              <button class="preset-btn" onclick="setDatePreset('last_7')">直近7日</button>
+              <button class="preset-btn" onclick="setDatePreset('this_year')">今年</button>
+            </div>
+            <div class="notice info" id="date-preview" style="margin-top:8px;font-size:10px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Count -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🔢</span>
+        <span class="card-title">件数制限</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>最大取得件数 <span class="hint">（0 = 無制限）</span></label>
+          <div class="range-wrap">
+            <input type="range" id="range-slider" min="0" max="200" value="50" step="10" oninput="updateRange(this.value)">
+            <div class="range-val" id="range-display">50</div>
+          </div>
+        </div>
+        <div class="toggle-group" style="margin-top:10px">
+          <button class="toggle-btn" onclick="setRange(10)">10</button>
+          <button class="toggle-btn" onclick="setRange(50)">50</button>
+          <button class="toggle-btn" onclick="setRange(100)">100</button>
+          <button class="toggle-btn" onclick="setRange(0)">無制限</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filename -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">📝</span>
+        <span class="card-title">ファイル名形式</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <div class="toggle-group" id="fname-group">
+            <button class="toggle-btn active" onclick="setFilename('default', this)">標準</button>
+            <button class="toggle-btn" onclick="setFilename('date', this)">日付入り</button>
+            <button class="toggle-btn" onclick="setFilename('custom', this)">カスタム</button>
+          </div>
+        </div>
+        <div class="field" id="field-custom-fname" style="display:none">
+          <label>カスタムパターン</label>
+          <input type="text" id="custom-fname" value="{user[name]}_{tweet_id}_{num}.{extension}" oninput="buildCommand()">
+        </div>
+        <div class="notice info" id="fname-preview" style="font-size:10px;margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- Save dir -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">📁</span>
+        <span class="card-title">保存先</span>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label>ディレクトリ</label>
+          <input type="text" id="directory" value="~/Downloads/x_media" oninput="buildCommand()">
+        </div>
+        <div class="toggle-group">
+          <button class="toggle-btn" onclick="setDir('~/Downloads/x_media')">Downloads</button>
+          <button class="toggle-btn" onclick="setDir('~/Desktop/x_media')">Desktop</button>
+          <button class="toggle-btn" onclick="setDir('~/Pictures/x_media')">Pictures</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">⚙️</span>
+        <span class="card-title">オプション</span>
+      </div>
+      <div class="card-body">
+        <div class="switch-row">
+          <div>
+            <div class="switch-label">スリープ（流量制限対策）</div>
+            <div class="switch-desc">DL間隔に2秒の待機を入れる</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-sleep" onchange="buildCommand()">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+        <div class="switch-row">
+          <div>
+            <div class="switch-label">スキップしない</div>
+            <div class="switch-desc">既存ファイルも再DLする</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-noskip" onchange="buildCommand()">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+        <div class="switch-row">
+          <div>
+            <div class="switch-label">最高画質で取得</div>
+            <div class="switch-desc">画像URLに ?name=orig を付加する</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-orig" onchange="buildCommand()">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+        <div class="switch-row">
+          <div>
+            <div class="switch-label">メタデータを保存（JSON）</div>
+            <div class="switch-desc">投稿者・日時・IDなどをJSONで保存</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-metadata" onchange="buildCommand()">
+            <span class="switch-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Command Output -->
+  <div class="cmd-output">
+    <div class="cmd-output-header">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <div class="cmd-output-title" style="margin-left:8px">// 生成されたコマンド</div>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text-mid)">▼ 確認してから実行ボタンを押してください</span>
+    </div>
+    <div class="cmd-text" id="cmd-output"></div>
+    <div class="cmd-actions">
+      <button class="btn btn-primary" id="copy-btn" onclick="copyCommand()">📋 コピー</button>
+      <button class="btn btn-run" id="run-btn" onclick="startDownload()">▶ ダウンロード開始</button>
+      <button class="btn btn-secondary" onclick="resetAll()">↺ リセット</button>
+    </div>
+  </div>
+
+  <div class="notice warn" style="margin-top:16px">
+    ⚠️ 実行前にChromeでX（x.com）にログインした状態にしてください。<br>
+    大量DLはXのレート制限に引っかかる場合があります。スリープONを推奨します。
+  </div>
+
+  <!-- Progress panel -->
+  <div class="progress-panel" id="progress-panel" style="display:none">
+    <div class="progress-header">
+      <div class="dot dot-red"></div>
+      <div class="dot dot-yellow"></div>
+      <div class="dot dot-green"></div>
+      <span class="progress-title" style="margin-left:8px">// ダウンロード進捗</span>
+      <span id="progress-status" class="progress-status running">実行中...</span>
+      <button class="btn btn-danger" id="stop-btn" onclick="stopDownload()" style="padding:2px 10px;font-size:11px">■ 停止</button>
+    </div>
+    <div class="progress-log" id="progress-log"></div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──
+const state = {
+  type: 'hashtag',
+  range: 50,
+  filename: 'default',
+  customFname: '{user[name]}_{tweet_id}_{num}.{extension}',
+  directory: '~/Downloads/x_media',
+  sleep: false,
+  noskip: false,
+  orig: true,
+};
+
+// ── Presets ──
+const presets = {
+  hashtag_image: { type:'hashtag', range:50, filename:'default' },
+  hashtag_video: { type:'hashtag', range:50, filename:'default' },
+  hashtag_all:   { type:'hashtag', range:50, filename:'default' },
+  user_media:    { type:'user_media', range:100, filename:'default' },
+  user_likes:    { type:'user_likes', range:100, filename:'date' },
+};
+
+function applyPreset(key) {
+  const p = presets[key];
+  Object.assign(state, p);
+
+  // メディアチェックボックスをプリセットに合わせる
+  if (key === 'hashtag_image') {
+    document.getElementById('cb-photo').checked = true;
+    document.getElementById('cb-video').checked = false;
+    document.getElementById('cb-gif').checked   = false;
+  } else if (key === 'hashtag_video') {
+    document.getElementById('cb-photo').checked = false;
+    document.getElementById('cb-video').checked = true;
+    document.getElementById('cb-gif').checked   = false;
+  } else {
+    document.getElementById('cb-photo').checked = true;
+    document.getElementById('cb-video').checked = true;
+    document.getElementById('cb-gif').checked   = false;
+  }
+
+  // Sync UI
+  document.querySelectorAll('#type-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  const typeMap = { hashtag:0, user_media:1, user_likes:2, tweet:3 };
+  document.querySelectorAll('#type-group .toggle-btn')[typeMap[state.type]]?.classList.add('active');
+  updateTypeUI(state.type);
+
+  document.querySelectorAll('#fname-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  const fnameMap = { default:0, date:1, custom:2 };
+  document.querySelectorAll('#fname-group .toggle-btn')[fnameMap[state.filename]]?.classList.add('active');
+  updateFnameUI(state.filename);
+
+  updateRange(state.range);
+  buildCommand();
+}
+
+// ── Type ──
+function setType(type, btn) {
+  state.type = type;
+  document.querySelectorAll('#type-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateTypeUI(type);
+  buildCommand();
+}
+
+function updateTypeUI(type) {
+  document.getElementById('field-hashtag').style.display   = type==='hashtag' ? '' : 'none';
+  document.getElementById('field-username').style.display  = (type==='user_media'||type==='user_likes') ? '' : 'none';
+  document.getElementById('field-tweeturl').style.display  = type==='tweet' ? '' : 'none';
+}
+
+// ── Date UI ──
+function toggleDateUI() {
+  const enabled = document.getElementById('date-enabled').checked;
+  document.getElementById('date-fields').style.display = enabled ? '' : 'none';
+  buildCommand();
+}
+
+function setDatePreset(preset) {
+  const now = new Date();
+  let after, before;
+
+  if (preset === 'this_month') {
+    after  = new Date(now.getFullYear(), now.getMonth(), 1);
+    before = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else if (preset === 'last_month') {
+    after  = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    before = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (preset === 'last_30') {
+    after  = new Date(now - 30 * 864e5);
+    before = now;
+  } else if (preset === 'last_7') {
+    after  = new Date(now - 7 * 864e5);
+    before = now;
+  } else if (preset === 'this_year') {
+    after  = new Date(now.getFullYear(), 0, 1);
+    before = new Date(now.getFullYear(), 11, 31);
+  }
+
+  const fmt = d => d.toISOString().slice(0, 10);
+  document.getElementById('date-after').value  = fmt(after);
+  document.getElementById('date-before').value = fmt(before);
+  buildCommand();
+}
+
+function updateDatePreview() {
+  const after  = document.getElementById('date-after').value;
+  const before = document.getElementById('date-before').value;
+  const preview = document.getElementById('date-preview');
+  if (!after && !before) { preview.textContent = ''; return; }
+  const parts = [];
+  if (after)  parts.push(`${after} 以降`);
+  if (before) parts.push(`${before} 以前`);
+  preview.textContent = '対象期間: ' + parts.join(' ／ ');
+}
+
+// ── Range ──
+function setRange(val) {
+  state.range = val;
+  document.getElementById('range-slider').value = val;
+  updateRange(val);
+}
+
+function updateRange(val) {
+  state.range = parseInt(val);
+  document.getElementById('range-display').textContent = val == 0 ? '∞' : val;
+  document.getElementById('range-slider').value = val;
+  buildCommand();
+}
+
+// ── Filename ──
+function setFilename(mode, btn) {
+  state.filename = mode;
+  document.querySelectorAll('#fname-group .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateFnameUI(mode);
+  buildCommand();
+}
+
+function updateFnameUI(mode) {
+  document.getElementById('field-custom-fname').style.display = mode==='custom' ? '' : 'none';
+  const previews = {
+    default: '例: photographer_123456789_1.jpg',
+    date:    '例: 2024-06-15_photographer_1.jpg',
+    custom:  '独自パターンを入力してください',
+  };
+  document.getElementById('fname-preview').textContent = previews[mode] || '';
+}
+
+// ── Dir ──
+function setDir(dir) {
+  state.directory = dir;
+  document.getElementById('directory').value = dir;
+  buildCommand();
+}
+
+// ── Build URLs（複数ハッシュタグ対応） ──
+function buildURLs() {
+  const tagInput = document.getElementById('hashtag').value;
+  const user  = document.getElementById('username').value.trim().replace(/^@/, '');
+  const turl  = document.getElementById('tweeturl').value.trim();
+
+  switch(state.type) {
+    case 'hashtag': {
+      const tags = tagInput.split(',')
+        .map(t => t.trim().replace(/^#/, ''))
+        .filter(t => t.length > 0);
+      if (!tags.length) return null;
+      return tags.map(t => `https://x.com/search?q=%23${encodeURIComponent(t)}&f=media`);
+    }
+    case 'user_media':
+      if (!user) return null;
+      return [`https://x.com/${user}/media`];
+    case 'user_likes':
+      if (!user) return null;
+      return [`https://x.com/${user}/likes`];
+    case 'tweet':
+      return turl ? [turl] : null;
+  }
+}
+
+// ── Build filename pattern ──
+function buildFilenamePattern() {
+  switch(state.filename) {
+    case 'default': return '{user[name]}_{tweet_id}_{num}.{extension}';
+    case 'date':    return '{date:%Y-%m-%d}_{user[name]}_{num}.{extension}';
+    case 'custom':  return document.getElementById('custom-fname').value || '{user[name]}_{tweet_id}_{num}.{extension}';
+  }
+}
+
+// ── Build media filter ──
+function buildMediaFilter() {
+  const photo = document.getElementById('cb-photo').checked;
+  const video = document.getElementById('cb-video').checked;
+  const gif   = document.getElementById('cb-gif').checked;
+
+  // 警告表示
+  const warn = document.getElementById('cb-warn');
+  if (!photo && !video && !gif) {
+    warn.style.display = '';
+    return null;
+  }
+  warn.style.display = 'none';
+
+  // すべてONなら --filter 不要
+  if (photo && video && gif) return null;
+
+  const exts = [];
+  if (photo) exts.push("'jpg'", "'png'", "'webp'");
+  if (video) exts.push("'mp4'", "'m4v'");
+  if (gif)   exts.push("'gif'");
+
+  return `"extension in (${exts.join(', ')})"`;
+}
+
+// ── Build command ──
+let _rawCommand = ''; // コピー用にプレーンテキストを保持
+
+function buildCommand() {
+  // Sync state from inputs
+  state.directory   = document.getElementById('directory').value || '~/Downloads/x_media';
+  state.customFname = document.getElementById('custom-fname').value;
+  state.sleep       = document.getElementById('opt-sleep').checked;
+  state.noskip      = document.getElementById('opt-noskip').checked;
+  state.orig        = document.getElementById('opt-orig').checked;
+  state.metadata    = document.getElementById('opt-metadata').checked;
+
+  const urls = buildURLs();
+  if (!urls) {
+    document.getElementById('cmd-output').innerHTML =
+      '<span style="color:var(--text-dim)">← 取得対象を入力してください</span>';
+    _rawCommand = '';
+    return;
+  }
+
+  const fname       = buildFilenamePattern();
+  const mediaFilter = buildMediaFilter();
+  const dir         = state.directory;
+
+  // 日付
+  const dateEnabled = document.getElementById('date-enabled').checked;
+  const dateAfter   = dateEnabled ? document.getElementById('date-after').value : '';
+  const dateBefore  = dateEnabled ? document.getElementById('date-before').value : '';
+  updateDatePreview();
+
+  // オプション部分（URL以外）を組み立てるヘルパー
+  function buildOptionLines() {
+    const rawLines  = [];
+    const htmlLines = [];
+    const addLine = (raw, html) => { rawLines.push(raw); htmlLines.push(html); };
+
+    addLine(
+      `gallery-dl \\`,
+      `<span class="kw">gallery-dl</span> \\`
+    );
+    addLine(
+      `  --cookies-from-browser chrome \\`,
+      `  <span class="flag">--cookies-from-browser</span> <span class="val">chrome</span> \\`
+    );
+    addLine(
+      `  --filename "${fname}" \\`,
+      `  <span class="flag">--filename</span> <span class="val">"${fname}"</span> \\`
+    );
+    addLine(
+      `  --directory ${dir} \\`,
+      `  <span class="flag">--directory</span> <span class="val">${dir}</span> \\`
+    );
+    if (mediaFilter) addLine(
+      `  --filter ${mediaFilter} \\`,
+      `  <span class="flag">--filter</span> <span class="val">${mediaFilter}</span> \\`
+    );
+    if (dateAfter) addLine(
+      `  --date-after  ${dateAfter} \\`,
+      `  <span class="flag">--date-after</span>  <span class="val">${dateAfter}</span> \\`
+    );
+    if (dateBefore) addLine(
+      `  --date-before ${dateBefore} \\`,
+      `  <span class="flag">--date-before</span> <span class="val">${dateBefore}</span> \\`
+    );
+    if (state.range > 0) addLine(
+      `  --range 1-${state.range} \\`,
+      `  <span class="flag">--range</span> <span class="val">1-${state.range}</span> \\`
+    );
+    if (state.sleep) addLine(
+      `  --sleep 2 \\`,
+      `  <span class="flag">--sleep</span> <span class="val">2</span> \\`
+    );
+    if (state.noskip) addLine(
+      `  --no-skip \\`,
+      `  <span class="flag">--no-skip</span> \\`
+    );
+    if (state.orig) addLine(
+      `  --config-option extractor.twitter.size=orig \\`,
+      `  <span class="flag">--config-option</span> <span class="val">extractor.twitter.size=orig</span> \\`
+    );
+    if (state.metadata) addLine(
+      `  --write-metadata \\`,
+      `  <span class="flag">--write-metadata</span> \\`
+    );
+    return { rawLines, htmlLines };
+  }
+
+  // URLごとにコマンドブロックを生成
+  const allRaw  = [];
+  const allHtml = [];
+
+  urls.forEach((url, i) => {
+    if (i > 0) {
+      allRaw.push('');  // 空行で区切る
+      allHtml.push('');
+    }
+    const { rawLines, htmlLines } = buildOptionLines();
+
+    // 最後の行に \ を確保してURLを追加
+    const lastRaw  = rawLines[rawLines.length-1];
+    const lastHtml = htmlLines[htmlLines.length-1];
+    if (!lastRaw.endsWith('\\')) {
+      rawLines[rawLines.length-1]   = lastRaw  + ' \\';
+      htmlLines[htmlLines.length-1] = lastHtml + ' \\';
+    }
+    rawLines.push(`  "${url}"`);
+    htmlLines.push(`  <span class="url">"${url}"</span>`);
+
+    allRaw.push(...rawLines);
+    allHtml.push(...htmlLines);
+  });
+
+  _rawCommand = allRaw.join('\n');
+  document.getElementById('cmd-output').innerHTML = allHtml.join('\n');
+}
+
+// ── Copy ──
+function copyCommand() {
+  if (!_rawCommand) return;
+  navigator.clipboard.writeText(_rawCommand).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ コピー済';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 コピー'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── Reset ──
+function resetAll() {
+  document.getElementById('hashtag').value  = '';
+  document.getElementById('username').value = '';
+  document.getElementById('tweeturl').value = '';
+  document.getElementById('date-enabled').checked = false;
+  document.getElementById('date-after').value  = '';
+  document.getElementById('date-before').value = '';
+  toggleDateUI();
+  applyPreset('hashtag_all');
+  document.getElementById('directory').value = '~/Downloads/x_media';
+  document.getElementById('opt-sleep').checked    = false;
+  document.getElementById('opt-noskip').checked   = false;
+  document.getElementById('opt-orig').checked     = false;
+  document.getElementById('opt-metadata').checked = false;
+  buildCommand();
+}
+
+// ── Init ──
+updateTypeUI('hashtag');
+updateFnameUI('default');
+
+// デフォルト値
+document.getElementById('hashtag').value       = '';
+document.getElementById('cb-photo').checked    = true;
+document.getElementById('cb-video').checked    = true;
+document.getElementById('cb-gif').checked      = false;
+document.getElementById('date-enabled').checked = true;
+document.getElementById('date-after').value    = '2026-04-28';
+document.getElementById('date-before').value   = '2026-05-03';
+toggleDateUI();
+updateRange(0);
+buildCommand();
+
+// ── App execution ──
+let _currentJobId = null;
+let _eventSource  = null;
+
+async function startDownload() {
+  if (!_rawCommand) return;
+
+  const runBtn  = document.getElementById('run-btn');
+  const panel   = document.getElementById('progress-panel');
+  const log     = document.getElementById('progress-log');
+  const status  = document.getElementById('progress-status');
+
+  runBtn.disabled = true;
+  log.innerHTML   = '';
+  panel.style.display = 'block';
+  status.textContent  = '実行中...';
+  status.className    = 'progress-status running';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const res = await fetch('/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cmd: _rawCommand }),
+  });
+  const { job_id } = await res.json();
+  _currentJobId = job_id;
+
+  _eventSource = new EventSource(`/stream/${job_id}`);
+  _eventSource.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.line !== undefined) {
+      const span = document.createElement('span');
+      const isErr = /[Ee]rror|[Ff]ailed|Unauthorized|403|404/.test(data.line);
+      const isOk  = /\[#\]|Finished|Downloaded|\d+ file/.test(data.line);
+      span.className = 'log-line' + (isErr ? ' err' : isOk ? ' ok' : '');
+      span.textContent = data.line + '\n';
+      log.appendChild(span);
+      log.scrollTop = log.scrollHeight;
+    }
+    if (data.done) {
+      _eventSource.close(); _eventSource = null; _currentJobId = null;
+      runBtn.disabled = false;
+      if (data.returncode === 0 || data.returncode === null) {
+        status.textContent = '✓ 完了';
+        status.className   = 'progress-status done';
+      } else {
+        status.textContent = data.error ? `エラー: ${data.error}` : `終了コード: ${data.returncode}`;
+        status.className   = 'progress-status error';
+      }
+    }
+  };
+  _eventSource.onerror = () => {
+    _eventSource?.close(); _eventSource = null; _currentJobId = null;
+    status.textContent = '接続エラー';
+    status.className   = 'progress-status error';
+    runBtn.disabled    = false;
+  };
+}
+
+async function stopDownload() {
+  if (_currentJobId) {
+    await fetch(`/stop/${_currentJobId}`, { method: 'POST' });
+    _eventSource?.close(); _eventSource = null; _currentJobId = null;
+    document.getElementById('run-btn').disabled = false;
+    const status = document.getElementById('progress-status');
+    status.textContent = '停止しました';
+    status.className   = 'progress-status';
+  }
+}
+
+</script>
+</body>
+</html>
