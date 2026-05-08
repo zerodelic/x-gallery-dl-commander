@@ -55,9 +55,9 @@ h1 { font-family: var(--mono); font-size: clamp(16px, 2.8vw, 24px); color: var(-
 .grid.triple { grid-template-columns: 1fr 1fr 1fr; }
 .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .full { grid-column: 1 / -1; }
-.main-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: start; }
-.form-col { min-width: 0; }
-.side-col { position: sticky; top: 16px; }
+.main-layout { display: grid; grid-template-columns: 700px 1fr; gap: 16px; align-items: stretch; }
+.form-col { min-width: 0; display: flex; flex-direction: column; }
+.side-col { }
 
 /* ── Card ── */
 .card {
@@ -202,7 +202,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .btn-run:disabled { opacity:.4; cursor:not-allowed; filter:none; box-shadow:none; }
 
 /* ── Side progress panel ── */
-.progress-panel { background:#1e2a3a; border:1px solid #304258; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+.progress-panel { background:#1e2a3a; border:1px solid #304258; border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:flex; flex-direction:column; height:100%; }
 .progress-header { display:flex; align-items:center; gap:6px; padding:8px 12px; background:#26334a; border-bottom:1px solid #304258; }
 .progress-title { color:#7dd3fc; letter-spacing:1.5px; flex:1; font-family:var(--mono); font-size:11px; }
 .progress-status { font-size:11px; color:#94a3b8; font-family:var(--mono); white-space:nowrap; }
@@ -215,7 +215,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .prog-btn.stop:hover:not(:disabled) { border-color:#f87171; color:#f87171; }
 .prog-btn.run:hover:not(:disabled) { border-color:#4ade80; color:#4ade80; }
 .prog-btn:disabled { opacity:0.3; cursor:not-allowed; }
-.file-list { font-family:var(--mono); overflow-y:auto; max-height:calc(100vh - 260px); min-height:220px; }
+.file-list { font-family:var(--mono); overflow-y:auto; flex:1; }
 .file-header-row { display:grid; grid-template-columns:26px 1fr 52px 58px; gap:4px; padding:4px 10px; border-bottom:1px solid #304258; background:#223042; }
 .file-header-row span { font-size:10px; color:#4b5e7a; letter-spacing:1px; text-transform:uppercase; }
 .file-header-row .fh-name { }
@@ -499,11 +499,6 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
     </div>
   </div>
 
-  <div class="notice warn" style="margin-top:10px">
-    ⚠️ 実行前にChromeでX（x.com）にログインした状態にしてください。
-    大量DLはXのレート制限に引っかかる場合があります。スリープONを推奨します。
-  </div>
-
   </div><!-- /form-col -->
 
   <div class="side-col">
@@ -533,6 +528,11 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
   </div><!-- /side-col -->
 
   </div><!-- /main-layout -->
+
+  <div class="notice warn" style="margin-top:10px">
+    ⚠️ 実行前にChromeでX（x.com）にログインした状態にしてください。
+    大量DLはXのレート制限に引っかかる場合があります。スリープONを推奨します。
+  </div>
 
 </div>
 
