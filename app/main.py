@@ -107,6 +107,16 @@ async def resume_job(job_id: str):
     return {"ok": True}
 
 
+@app.post("/shutdown")
+async def shutdown():
+    def _do_shutdown():
+        import time
+        time.sleep(0.5)
+        os.kill(os.getpid(), signal.SIGTERM)
+    threading.Thread(target=_do_shutdown, daemon=True).start()
+    return {"ok": True}
+
+
 if __name__ == "__main__":
     def _open_browser():
         import time
