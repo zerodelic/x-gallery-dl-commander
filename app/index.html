@@ -216,19 +216,18 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .prog-btn.run:hover:not(:disabled) { border-color:#4ade80; color:#4ade80; }
 .prog-btn:disabled { opacity:0.3; cursor:not-allowed; }
 .file-list { font-family:var(--mono); overflow-y:auto; flex:1; }
-.file-header-row { display:grid; grid-template-columns:26px 1fr 52px 58px; gap:4px; padding:4px 10px; border-bottom:1px solid #304258; background:#223042; }
+.file-header-row { display:grid; grid-template-columns:26px 22px 1fr 52px; gap:4px; padding:4px 10px; border-bottom:1px solid #304258; background:#223042; }
 .file-header-row span { font-size:10px; color:#4b5e7a; letter-spacing:1px; text-transform:uppercase; }
-.file-header-row .fh-name { }
-.file-header-row .fh-status, .file-header-row .fh-size { text-align:center; }
-.file-row { display:grid; grid-template-columns:26px 1fr 52px 58px; gap:4px; padding:5px 10px; border-bottom:1px solid rgba(48,66,88,0.5); align-items:center; }
+.file-header-row .fh-status { text-align:center; }
+.file-row { display:grid; grid-template-columns:26px 22px 1fr 52px; gap:4px; padding:5px 10px; border-bottom:1px solid rgba(48,66,88,0.5); align-items:center; }
 .file-row:hover { background:rgba(56,189,248,0.04); }
 .file-num { color:#7dd3fc; font-size:11px; text-align:right; font-weight:600; }
+.file-icon { font-size:14px; text-align:center; line-height:1; }
 .file-name { color:#cbd5e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
 .file-status { font-size:11px; text-align:center; }
 .file-status.ok   { color:#4ade80; }
 .file-status.skip { color:#64748b; }
 .file-status.err  { color:#f87171; }
-.file-size { color:#64748b; font-size:11px; text-align:right; }
 .idle-msg { color:#4b5e7a; font-size:12px; padding:28px 16px; text-align:center; font-family:var(--mono); line-height:1.9; }
 .log-raw { padding:2px 10px; color:#607a96; font-size:11px; line-height:1.5; }
 .log-raw.err { color:#f87171; }
@@ -514,15 +513,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
         <button class="prog-btn stop" id="stop-btn" onclick="stopDownload()" title="停止" disabled>■</button>
       </div>
       <div class="file-header-row">
-        <span>#</span><span>ファイル名</span>
-        <span class="fh-status">状態</span><span class="fh-size">サイズ</span>
+        <span>#</span><span></span><span>ファイル名</span>
+        <span class="fh-status">状態</span>
       </div>
       <div class="file-list" id="progress-log">
         <div class="idle-msg">ダウンロードを開始すると<br>進捗がここに表示されます</div>
       </div>
       <div class="progress-footer">
         <span id="footer-count">— ファイル</span>
-        <span id="footer-size"></span>
       </div>
     </div>
   </div><!-- /side-col -->
@@ -917,27 +915,18 @@ let _currentJobId = null;
 let _eventSource  = null;
 let _paused       = false;
 let _fileCount    = 0;
-let _totalBytes   = 0;
-let _prevLine     = '';
 
-function _parseBytes(line) {
-  const m = line.match(/([\d.]+)\s*(GB|MB|KB|B)\b/i);
-  if (!m) return 0;
-  const n = parseFloat(m[1]), u = m[2].toUpperCase();
-  return u==='GB' ? n*1e9 : u==='MB' ? n*1e6 : u==='KB' ? n*1e3 : n;
-}
-function _fmtBytes(b) {
-  if (b>=1e9) return (b/1e9).toFixed(1)+' GB';
-  if (b>=1e6) return (b/1e6).toFixed(1)+' MB';
-  if (b>=1e3) return (b/1e3).toFixed(0)+' KB';
-  return b+' B';
+function _fileIcon(fname) {
+  const ext = (fname.match(/\.(\w+)$/)||[])[1]?.toLowerCase();
+  if (/^(mp4|m4v|webm|mov|ts)$/.test(ext)) return '🎬';
+  if (ext === 'gif') return '🎞';
+  return '📷';
 }
 function _updateFooter() {
   document.getElementById('footer-count').textContent = `${_fileCount} ファイル`;
-  document.getElementById('footer-size').textContent  = _totalBytes>0 ? _fmtBytes(_totalBytes) : '';
 }
 
-function _addFileRow(num, filename, stClass, stText, sizeStr) {
+function _addFileRow(num, filename, stClass, stText) {
   const list = document.getElementById('progress-log');
   const idle = list.querySelector('.idle-msg');
   if (idle) idle.remove();
@@ -945,9 +934,9 @@ function _addFileRow(num, filename, stClass, stText, sizeStr) {
   row.className = 'file-row';
   row.innerHTML =
     `<span class="file-num">${num}</span>` +
+    `<span class="file-icon">${_fileIcon(filename)}</span>` +
     `<span class="file-name" title="${filename}">${filename}</span>` +
-    `<span class="file-status ${stClass}">${stText}</span>` +
-    `<span class="file-size">${sizeStr}</span>`;
+    `<span class="file-status ${stClass}">${stText}</span>`;
   list.appendChild(row);
   list.scrollTop = list.scrollHeight;
 }
@@ -966,21 +955,15 @@ function _handleLine(line) {
   const isSkip = /[Ss]kip(ping)?|already exists/i.test(line);
   const fileMatch = line.match(/([^\/\\]+\.(jpe?g|png|gif|mp4|webm|mov|ts|m4v))\s*$/i);
   if (fileMatch) {
-    const fname   = fileMatch[1];
-    // サイズは同行または直前行から取得
-    const sizeB   = _parseBytes(line) || _parseBytes(_prevLine);
-    const sizeStr = sizeB > 0 ? _fmtBytes(sizeB) : '';
-    if (sizeB > 0) _totalBytes += sizeB;
+    const fname = fileMatch[1];
     _fileCount++;
     _updateFooter();
-    if (isSkip)      _addFileRow(_fileCount, fname, 'skip', '↷ skip', sizeStr);
-    else if (isErr)  _addFileRow(_fileCount, fname, 'err',  '✕ err',  sizeStr);
-    else             _addFileRow(_fileCount, fname, 'ok',   '✓ OK',   sizeStr);
-    _prevLine = '';
+    if (isSkip)     _addFileRow(_fileCount, fname, 'skip', '↷ skip');
+    else if (isErr) _addFileRow(_fileCount, fname, 'err',  '✕ err');
+    else            _addFileRow(_fileCount, fname, 'ok',   '✓ OK');
     return;
   }
   if (isErr || /\[warn\]/i.test(line)) { _addRawLine(line, isErr); }
-  _prevLine = line;
 }
 
 async function startDownload() {
@@ -991,7 +974,7 @@ async function startDownload() {
   const stopBtn  = document.getElementById('stop-btn');
   const list     = document.getElementById('progress-log');
 
-  _fileCount = 0; _totalBytes = 0; _paused = false; _prevLine = '';
+  _fileCount = 0; _paused = false;
   list.innerHTML = '';
   runBtn.disabled = true; pauseBtn.disabled = false; stopBtn.disabled = false;
   pauseBtn.textContent = '⏸'; pauseBtn.title = '一時停止';
