@@ -222,7 +222,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .file-header-row .fh-status, .file-header-row .fh-size { text-align:center; }
 .file-row { display:grid; grid-template-columns:26px 1fr 52px 58px; gap:4px; padding:5px 10px; border-bottom:1px solid rgba(48,66,88,0.5); align-items:center; }
 .file-row:hover { background:rgba(56,189,248,0.04); }
-.file-num { color:#4b5e7a; font-size:11px; text-align:right; }
+.file-num { color:#7dd3fc; font-size:11px; text-align:right; font-weight:600; }
 .file-name { color:#cbd5e1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
 .file-status { font-size:11px; text-align:center; }
 .file-status.ok   { color:#4ade80; }
@@ -918,6 +918,7 @@ let _eventSource  = null;
 let _paused       = false;
 let _fileCount    = 0;
 let _totalBytes   = 0;
+let _prevLine     = '';
 
 function _parseBytes(line) {
   const m = line.match(/([\d.]+)\s*(GB|MB|KB|B)\b/i);
@@ -966,7 +967,8 @@ function _handleLine(line) {
   const fileMatch = line.match(/([^\/\\]+\.(jpe?g|png|gif|mp4|webm|mov|ts|m4v))\s*$/i);
   if (fileMatch) {
     const fname   = fileMatch[1];
-    const sizeB   = _parseBytes(line);
+    // サイズは同行または直前行から取得
+    const sizeB   = _parseBytes(line) || _parseBytes(_prevLine);
     const sizeStr = sizeB > 0 ? _fmtBytes(sizeB) : '';
     if (sizeB > 0) _totalBytes += sizeB;
     _fileCount++;
@@ -974,9 +976,11 @@ function _handleLine(line) {
     if (isSkip)      _addFileRow(_fileCount, fname, 'skip', '↷ skip', sizeStr);
     else if (isErr)  _addFileRow(_fileCount, fname, 'err',  '✕ err',  sizeStr);
     else             _addFileRow(_fileCount, fname, 'ok',   '✓ OK',   sizeStr);
+    _prevLine = '';
     return;
   }
   if (isErr || /\[warn\]/i.test(line)) { _addRawLine(line, isErr); }
+  _prevLine = line;
 }
 
 async function startDownload() {
@@ -987,7 +991,7 @@ async function startDownload() {
   const stopBtn  = document.getElementById('stop-btn');
   const list     = document.getElementById('progress-log');
 
-  _fileCount = 0; _totalBytes = 0; _paused = false;
+  _fileCount = 0; _totalBytes = 0; _paused = false; _prevLine = '';
   list.innerHTML = '';
   runBtn.disabled = true; pauseBtn.disabled = false; stopBtn.disabled = false;
   pauseBtn.textContent = '⏸'; pauseBtn.title = '一時停止';
