@@ -210,7 +210,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .progress-status.done    { color:#4ade80; }
 .progress-status.error   { color:#f87171; }
 .progress-status.paused  { color:#fbbf24; }
-.prog-btn { width:24px; height:24px; border:1px solid #304258; border-radius:4px; background:transparent; color:#94a3b8; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+.prog-btn { padding:3px 10px; height:24px; border:1px solid #304258; border-radius:4px; background:transparent; color:#94a3b8; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; font-family:var(--mono); white-space:nowrap; gap:4px; }
 .prog-btn:hover:not(:disabled) { border-color:#38bdf8; color:#38bdf8; }
 .prog-btn.stop:hover:not(:disabled) { border-color:#f87171; color:#f87171; }
 .prog-btn.run:hover:not(:disabled) { border-color:#4ade80; color:#4ade80; }
@@ -508,9 +508,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
         <div class="dot dot-green"></div>
         <span class="progress-title" style="margin-left:6px">// ダウンロード進捗</span>
         <span id="progress-status" class="progress-status">待機中</span>
-        <button class="prog-btn run" id="run-btn" onclick="startDownload()" title="ダウンロード開始">▶</button>
-        <button class="prog-btn" id="pause-btn" onclick="pauseDownload()" title="一時停止" disabled>⏸</button>
-        <button class="prog-btn stop" id="stop-btn" onclick="stopDownload()" title="停止" disabled>■</button>
+        <button class="prog-btn run" id="run-btn" onclick="startDownload()">▶ 実行</button>
+        <button class="prog-btn" id="pause-btn" onclick="pauseDownload()" disabled>⏸ 一時停止</button>
+        <button class="prog-btn stop" id="stop-btn" onclick="stopDownload()" disabled>■ 停止</button>
       </div>
       <div class="file-header-row">
         <span>#</span><span></span><span>ファイル名</span>
@@ -977,7 +977,7 @@ async function startDownload() {
   _fileCount = 0; _paused = false;
   list.innerHTML = '';
   runBtn.disabled = true; pauseBtn.disabled = false; stopBtn.disabled = false;
-  pauseBtn.textContent = '⏸'; pauseBtn.title = '一時停止';
+  pauseBtn.textContent = '⏸ 一時停止';
   status.textContent = '実行中...'; status.className = 'progress-status running';
   _updateFooter();
 
@@ -1019,12 +1019,12 @@ async function pauseDownload() {
   if (!_paused) {
     await fetch(`/pause/${_currentJobId}`, {method:'POST'});
     _paused = true;
-    pauseBtn.textContent = '▶'; pauseBtn.title = '再開';
+    pauseBtn.textContent = '▶ 再開';
     status.textContent = '⏸ 一時停止中'; status.className = 'progress-status paused';
   } else {
     await fetch(`/resume/${_currentJobId}`, {method:'POST'});
     _paused = false;
-    pauseBtn.textContent = '⏸'; pauseBtn.title = '一時停止';
+    pauseBtn.textContent = '⏸ 一時停止';
     status.textContent = '実行中...'; status.className = 'progress-status running';
   }
 }
@@ -1039,7 +1039,7 @@ async function stopDownload() {
     const status = document.getElementById('progress-status');
     status.textContent = '停止しました'; status.className = 'progress-status';
     _paused = false;
-    document.getElementById('pause-btn').textContent = '⏸';
+    document.getElementById('pause-btn').textContent = '⏸ 一時停止';
   }
 }
 

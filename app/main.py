@@ -49,6 +49,7 @@ async def stream(job_id: str):
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
                 env={**os.environ, "PYTHONUNBUFFERED": "1"},
+                start_new_session=True,
             )
             job["process"] = process
             async for line in process.stdout:
