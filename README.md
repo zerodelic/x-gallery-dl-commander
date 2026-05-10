@@ -107,6 +107,24 @@ x-gallery-dl-commander/
 
 ---
 
+## テスト
+
+コマンド生成ロジックのユニットテストを Vitest で実行できます。
+
+### 必要なもの
+- Node.js 18+（`brew install node`）
+
+### 実行方法
+
+```bash
+npm install
+npm test
+```
+
+テストファイル: `tests/command-builder.test.js`
+
+---
+
 ## ライセンス
 
 MIT License

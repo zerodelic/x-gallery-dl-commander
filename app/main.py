@@ -107,6 +107,38 @@ async def resume_job(job_id: str):
     return {"ok": True}
 
 
+@app.get("/pick-directory")
+async def pick_directory():
+    loop = asyncio.get_event_loop()
+    path = await loop.run_in_executor(None, _show_dir_dialog)
+    return {"path": path}
+
+
+def _show_dir_dialog() -> str:
+    import sys, subprocess
+    if sys.platform == "darwin":
+        try:
+            result = subprocess.run(
+                ["osascript", "-e",
+                 'POSIX path of (choose folder with prompt "保存先フォルダーを選択")'],
+                capture_output=True, text=True, timeout=120,
+            )
+            return result.stdout.strip().rstrip("/") if result.returncode == 0 else ""
+        except Exception:
+            pass
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        root = tk.Tk()
+        root.withdraw()
+        root.wm_attributes("-topmost", 1)
+        folder = filedialog.askdirectory(title="保存先フォルダーを選択")
+        root.destroy()
+        return folder or ""
+    except Exception:
+        return ""
+
+
 @app.post("/shutdown")
 async def shutdown():
     def _do_shutdown():

@@ -45,6 +45,10 @@ header { margin-bottom: 14px; }
 .logo-row-end { margin-left: auto; }
 .btn-shutdown { padding:5px 14px; background:transparent; border:1.5px solid rgba(248,113,113,0.4); border-radius:6px; color:#b91c1c; font-family:var(--mono); font-size:11px; cursor:pointer; transition:all 0.15s; }
 .btn-shutdown:hover { background:rgba(248,113,113,0.08); border-color:#f87171; color:#ef4444; }
+.input-with-btn { display:flex; gap:6px; }
+.input-with-btn input { flex:1; }
+.btn-pick { padding:8px 10px; background:var(--surface2); border:1px solid var(--border2); border-radius:6px; font-size:14px; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
+.btn-pick:hover { background:var(--surface3); border-color:var(--accent); }
 h1 { font-family: var(--mono); font-size: clamp(16px, 2.8vw, 24px); color: var(--accent); letter-spacing: 2px; }
 .version-tag {
   font-family: var(--mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
@@ -481,7 +485,10 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
           <div>
             <div class="field">
               <label>保存先ディレクトリ</label>
-              <input type="text" id="directory" value="~/Downloads/x_media" oninput="buildCommand()">
+              <div class="input-with-btn">
+                <input type="text" id="directory" value="~/Downloads/x_media" oninput="buildCommand()">
+                <button class="btn-pick" onclick="pickDirectory()" title="フォルダーを選択">📁</button>
+              </div>
             </div>
             <div class="toggle-group" style="margin-top:8px">
               <button class="toggle-btn" onclick="setDir('~/Downloads/x_media')">Downloads</button>
@@ -1056,6 +1063,16 @@ async function pauseDownload() {
     _paused = false;
     pauseBtn.textContent = '⏸ 一時停止';
     status.textContent = '実行中...'; status.className = 'progress-status running';
+  }
+}
+
+async function pickDirectory() {
+  const res = await fetch('/pick-directory').catch(() => null);
+  if (!res) return;
+  const { path } = await res.json();
+  if (path) {
+    document.getElementById('directory').value = path;
+    buildCommand();
   }
 }
 
