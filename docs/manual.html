@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-gallery-dl-commander 取扱説明書</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #edf2f8;
+  --surface: #ffffff;
+  --surface2: #f4f7fb;
+  --surface3: #e8eef6;
+  --border: #cdd8e8;
+  --border2: #b0c2d8;
+  --accent: #0284c7;
+  --accent-dim: rgba(2,132,199,0.10);
+  --accent2: #0369a1;
+  --warn: #92400e;
+  --warn-bg: rgba(254,243,199,0.8);
+  --text: #0f172a;
+  --text-dim: #4b6282;
+  --text-mid: #334155;
+  --mono: 'Share Tech Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+  --sidebar-w: 240px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: linear-gradient(160deg, #ddeaf8 0%, #edf2f8 40%, #e4ecf7 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 24px 0 40px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  z-index: 100;
+}
+.sidebar-logo {
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  letter-spacing: 1.5px; padding: 0 20px 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.sidebar-logo span { display: block; color: var(--text-dim); font-size: 10px; margin-top: 3px; }
+.nav-section { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; padding: 10px 20px 4px; }
+.nav-item { display: block; padding: 6px 20px; font-size: 13px; color: var(--text-mid); text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
+.nav-item:hover { color: var(--accent); background: var(--accent-dim); }
+.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); font-weight: 600; }
+.nav-item.sub { padding-left: 32px; font-size: 12px; }
+
+/* ── Main content ── */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 48px 56px 100px;
+  max-width: calc(var(--sidebar-w) + 820px);
+}
+
+/* ── Page header ── */
+.page-header { margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.page-header h1 { font-family: var(--mono); font-size: 22px; color: var(--accent); letter-spacing: 2px; margin-bottom: 6px; }
+.page-header p { color: var(--text-dim); font-size: 13px; font-family: var(--mono); }
+
+/* ── Sections ── */
+section { margin-bottom: 56px; }
+section:target { scroll-margin-top: 24px; }
+h2 {
+  font-family: var(--mono); font-size: 15px; color: var(--accent);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 20px; padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-dim);
+  display: flex; align-items: center; gap: 10px;
+}
+h2 .icon { font-size: 18px; }
+h3 {
+  font-size: 14px; color: var(--text); font-weight: 700;
+  margin: 24px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+h3 .icon { font-size: 16px; }
+p { margin-bottom: 12px; color: var(--text-mid); }
+ul, ol { padding-left: 1.4em; color: var(--text-mid); margin-bottom: 12px; }
+li { margin-bottom: 5px; }
+
+/* ── UI elements ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.card-header {
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 8px 16px; font-family: var(--mono); font-size: 11px;
+  color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-body { padding: 16px; }
+
+.notice {
+  padding: 12px 16px; border-radius: 8px; font-size: 13px;
+  line-height: 1.7; margin-bottom: 16px; font-family: var(--mono);
+}
+.notice.info { background: var(--accent-dim); border: 1px solid rgba(2,132,199,0.25); color: var(--accent2); }
+.notice.warn { background: var(--warn-bg); border: 1px solid rgba(217,119,6,0.35); color: var(--warn); }
+.notice.tip  { background: rgba(220,252,231,0.7); border: 1px solid rgba(34,197,94,0.3); color: #166534; }
+
+.step-list { list-style: none; padding: 0; counter-reset: step; }
+.step-list li {
+  counter-increment: step;
+  display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;
+}
+.step-list li::before {
+  content: counter(step);
+  min-width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+
+.kbd { display: inline-block; background: var(--surface3); border: 1px solid var(--border2); border-radius: 4px; padding: 1px 7px; font-family: var(--mono); font-size: 12px; color: var(--text-mid); box-shadow: 0 1px 2px rgba(0,0,0,0.07); }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); font-size: 11px; font-weight: 600; }
+.badge.ok   { background: rgba(74,222,128,0.15); color: #166534; }
+.badge.skip { background: rgba(100,116,139,0.15); color: #475569; }
+.badge.err  { background: rgba(248,113,113,0.15); color: #991b1b; }
+.badge.info { background: var(--accent-dim); color: var(--accent2); }
+
+.code-block {
+  background: #1e2a3a; border: 1px solid #304258; border-radius: 8px;
+  padding: 14px 18px; font-family: var(--mono); font-size: 13px;
+  color: #e2e8f0; overflow-x: auto; margin-bottom: 16px; line-height: 1.8;
+}
+.code-block .kw   { color: #f97316; }
+.code-block .flag { color: #38bdf8; }
+.code-block .val  { color: #ffffff; }
+.code-block .url  { color: #86efac; }
+.code-block .cmt  { color: #607a96; }
+
+.ui-mock {
+  background: #1e2a3a; border: 1px solid #304258; border-radius: 10px;
+  overflow: hidden; margin-bottom: 16px;
+}
+.ui-mock-header {
+  background: #26334a; border-bottom: 1px solid #304258;
+  padding: 8px 14px; display: flex; align-items: center; gap: 8px;
+}
+.ui-mock-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+.ui-mock-header .title { font-family: var(--mono); font-size: 11px; color: #7dd3fc; flex: 1; margin-left: 6px; }
+.ui-mock-body { padding: 12px 14px; font-family: var(--mono); font-size: 12px; }
+
+.table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: var(--surface2); border: 1px solid var(--border); padding: 8px 14px; text-align: left; font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+td { border: 1px solid var(--border); padding: 8px 14px; color: var(--text-mid); }
+tr:hover td { background: var(--surface2); }
+
+.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 20px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    X-GALLERY-DL-COMMANDER
+    <span>取扱説明書 v1.1.0</span>
+  </div>
+  <div class="nav-section">はじめに</div>
+  <a class="nav-item" href="#overview">このツールについて</a>
+  <a class="nav-item" href="#requirements">必要なもの</a>
+  <a class="nav-item" href="#startup">起動方法</a>
+  <div class="nav-section">画面の使い方</div>
+  <a class="nav-item" href="#presets">クイックプリセット</a>
+  <a class="nav-item" href="#target">取得対象の設定</a>
+  <a class="nav-item sub" href="#target-hashtag">ハッシュタグ</a>
+  <a class="nav-item sub" href="#target-user">ユーザー</a>
+  <a class="nav-item sub" href="#target-tweet">単一ツイート</a>
+  <a class="nav-item" href="#media">メディア種別</a>
+  <a class="nav-item" href="#date">日付範囲</a>
+  <a class="nav-item" href="#count">件数制限</a>
+  <a class="nav-item" href="#options">オプション</a>
+  <a class="nav-item" href="#filename">ファイル名・保存先</a>
+  <div class="nav-section">ダウンロード</div>
+  <a class="nav-item" href="#run">実行する</a>
+  <a class="nav-item" href="#progress">進捗パネルの見方</a>
+  <a class="nav-item" href="#stop">停止・一時停止</a>
+  <div class="nav-section">その他</div>
+  <a class="nav-item" href="#shutdown">サーバーの終了</a>
+  <a class="nav-item" href="#trouble">トラブルシューティング</a>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <div class="page-header">
+    <h1>X-GALLERY-DL-COMMANDER</h1>
+    <p>// 取扱説明書 &nbsp;|&nbsp; v1.1.0 &nbsp;|&nbsp; ローカルアプリ版</p>
+  </div>
+
+  <!-- ─────────────────────────────── OVERVIEW -->
+  <section id="overview">
+    <h2><span class="icon">📖</span> このツールについて</h2>
+    <p>
+      X（旧 Twitter）のハッシュタグやユーザーのメディアを、
+      まとめてダウンロードするための GUI ツールです。<br>
+      ブラウザで設定を入力して「実行」ボタンを押すだけで、
+      画像・動画の一括ダウンロードができます。
+    </p>
+    <div class="card">
+      <div class="card-header">🗂 2つのエディション</div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table>
+            <tr><th>エディション</th><th>特徴</th><th>Python</th></tr>
+            <tr>
+              <td><strong>ローカルアプリ版</strong>（app/）</td>
+              <td>リアルタイム進捗表示・一時停止・停止ができる本格版</td>
+              <td>必要</td>
+            </tr>
+            <tr>
+              <td><strong>HTML コマンドビルダー版</strong>（src/）</td>
+              <td>コマンドを生成してターミナルに貼るシンプル版</td>
+              <td>不要</td>
+            </tr>
+          </table>
+        </div>
+        <p style="margin:0;font-size:13px;">このマニュアルは <strong>ローカルアプリ版</strong> の説明です。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── REQUIREMENTS -->
+  <section id="requirements">
+    <h2><span class="icon">✅</span> 必要なもの</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ソフトウェア</th><th>インストール方法</th><th>確認コマンド</th></tr>
+        <tr>
+          <td><strong>Python 3.10 以上</strong></td>
+          <td><span class="kbd">brew install python</span></td>
+          <td><span class="kbd">python3 --version</span></td>
+        </tr>
+        <tr>
+          <td><strong>gallery-dl</strong></td>
+          <td><span class="kbd">brew install gallery-dl</span></td>
+          <td><span class="kbd">gallery-dl --version</span></td>
+        </tr>
+        <tr>
+          <td><strong>Google Chrome</strong></td>
+          <td>X（x.com）にログイン済みの状態であること</td>
+          <td>—</td>
+        </tr>
+      </table>
+    </div>
+    <div class="notice warn">
+      ⚠️ ダウンロード実行前に、必ず Chrome で X にログインしておいてください。
+      gallery-dl は Chrome の Cookie を使って認証します。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── STARTUP -->
+  <section id="startup">
+    <h2><span class="icon">🚀</span> 起動方法</h2>
+    <ol class="step-list">
+      <li>
+        <div>
+          <strong>app フォルダーを開く</strong><br>
+          <span style="color:var(--text-dim);font-size:13px;">Finder でプロジェクトフォルダー内の <code>app/</code> を開きます。</span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>start.command をダブルクリック</strong><br>
+          <span style="color:var(--text-dim);font-size:13px;">
+            ターミナルが開き、自動でサーバーが起動します。<br>
+            初回のみ、依存パッケージ（FastAPI / uvicorn）が自動インストールされます。
+          </span>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong>ブラウザが自動で開く</strong><br>
+          <span style="color:var(--text-dim);font-size:13px;">
+            約1.5秒後に <code>http://localhost:8765</code> がブラウザで開きます。
+            開かない場合は手動でこの URL にアクセスしてください。
+          </span>
+        </div>
+      </li>
+    </ol>
+    <div class="notice tip">
+      💡 ターミナルウィンドウは閉じずにそのままにしておいてください。
+      サーバーが動き続けるために必要です。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── PRESETS -->
+  <section id="presets">
+    <h2><span class="icon">⚡</span> クイックプリセット</h2>
+    <p>
+      画面上部の「クイックプリセット」ボタンを使うと、
+      よく使う設定の組み合わせをワンクリックで呼び出せます。
+    </p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ボタン</th><th>設定される内容</th></tr>
+        <tr><td>📷 ハッシュタグ・画像のみ</td><td>ハッシュタグ検索 ＋ 写真のみ</td></tr>
+        <tr><td>🎬 ハッシュタグ・動画のみ</td><td>ハッシュタグ検索 ＋ 動画のみ</td></tr>
+        <tr><td>📦 ハッシュタグ・全メディア</td><td>ハッシュタグ検索 ＋ 写真・動画</td></tr>
+        <tr><td>👤 ユーザーのメディアタブ</td><td>ユーザー指定 ＋ メディアタブ</td></tr>
+        <tr><td>❤️ ユーザーのいいね</td><td>ユーザー指定 ＋ いいね一覧</td></tr>
+      </table>
+    </div>
+    <div class="notice info">
+      ℹ️ プリセットを選んだあとで、個別の設定を追加変更することもできます。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── TARGET -->
+  <section id="target">
+    <h2><span class="icon">🎯</span> 取得対象の設定</h2>
+    <p>「取得対象」カードで、何をダウンロードするかを指定します。</p>
+
+    <h3 id="target-hashtag"><span class="icon">＃</span> ハッシュタグ</h3>
+    <p>
+      ハッシュタグを入力してください。<code>#</code> は不要です。<br>
+      <strong>複数のハッシュタグ</strong>はカンマ区切りで入力できます。
+      その場合、ハッシュタグごとにコマンドが生成されます。
+    </p>
+    <div class="card">
+      <div class="card-header">入力例</div>
+      <div class="card-body" style="font-family:var(--mono);font-size:13px;color:var(--text-mid);">
+        風景写真<br>
+        風景写真, landscape, 写真好きな人と繋がりたい
+      </div>
+    </div>
+
+    <h3 id="target-user"><span class="icon">👤</span> ユーザーのメディア / いいね</h3>
+    <p>
+      取得タイプで「ユーザー メディア」または「ユーザー いいね」を選び、
+      ユーザー名を入力してください。<code>@</code> は不要です。
+    </p>
+    <div class="card">
+      <div class="card-header">入力例</div>
+      <div class="card-body" style="font-family:var(--mono);font-size:13px;color:var(--text-mid);">
+        username &nbsp;（<code>@username</code> の場合は <code>username</code> のみ入力）
+      </div>
+    </div>
+
+    <h3 id="target-tweet"><span class="icon">📌</span> 単一ツイート</h3>
+    <p>「単一ツイート」を選び、ツイートの URL を貼り付けてください。</p>
+  </section>
+
+  <!-- ─────────────────────────────── MEDIA -->
+  <section id="media">
+    <h2><span class="icon">🖼</span> メディア種別</h2>
+    <p>ダウンロードするファイル種別をチェックボックスで選択します。</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>種別</th><th>対象形式</th></tr>
+        <tr><td>📷 写真</td><td>jpg / png / webp</td></tr>
+        <tr><td>🎬 動画</td><td>mp4 / m4v</td></tr>
+        <tr><td>🎞 GIFアニメ</td><td>gif</td></tr>
+      </table>
+    </div>
+    <div class="notice info">
+      ℹ️ 3種別すべてにチェックが入っている場合、フィルターオプションは付加されません（gallery-dl のデフォルト動作）。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── DATE -->
+  <section id="date">
+    <h2><span class="icon">📅</span> 日付範囲</h2>
+    <p>
+      「日付範囲を指定する」にチェックを入れると、
+      投稿日付で絞り込みができます。両方入力する必要はなく、
+      片方だけでも動作します。
+    </p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>フィールド</th><th>意味</th></tr>
+        <tr><td>開始日（以降）</td><td>指定した日付以降の投稿を取得</td></tr>
+        <tr><td>終了日（以前）</td><td>指定した日付以前の投稿を取得</td></tr>
+      </table>
+    </div>
+    <p>
+      クイック選択ボタン（今月・先月・直近30日など）を使うと
+      日付を素早く入力できます。
+    </p>
+  </section>
+
+  <!-- ─────────────────────────────── COUNT -->
+  <section id="count">
+    <h2><span class="icon">🔢</span> 件数制限</h2>
+    <p>
+      スライダーまたは数字ボタンで最大取得件数を指定します。<br>
+      <strong>0（∞）を選ぶと件数制限なし</strong>で取得します。
+    </p>
+    <div class="notice warn">
+      ⚠️ 件数制限なしで大量のメディアを取得すると、
+      X のレート制限（API 制限）に引っかかりやすくなります。
+      はじめは 50〜100 件程度でお試しください。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── OPTIONS -->
+  <section id="options">
+    <h2><span class="icon">⚙️</span> オプション</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>オプション</th><th>説明</th><th>推奨</th></tr>
+        <tr>
+          <td><strong>スリープ（流量制限対策）</strong></td>
+          <td>ダウンロードの間隔に2秒の待機を挿入します。レート制限を受けにくくなります。</td>
+          <td>✅ ON 推奨</td>
+        </tr>
+        <tr>
+          <td><strong>スキップしない</strong></td>
+          <td>すでに保存済みのファイルも再ダウンロードします。通常は OFF で問題ありません。</td>
+          <td>通常 OFF</td>
+        </tr>
+        <tr>
+          <td><strong>最高画質で取得</strong></td>
+          <td>画像を最高解像度（orig）で取得します。ファイルサイズが大きくなります。</td>
+          <td>好みで</td>
+        </tr>
+        <tr>
+          <td><strong>メタデータを保存（JSON）</strong></td>
+          <td>投稿者・日時・ツイート ID などをJSON ファイルとして一緒に保存します。</td>
+          <td>好みで</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── FILENAME -->
+  <section id="filename">
+    <h2><span class="icon">📝</span> ファイル名形式 / 保存先</h2>
+
+    <h3>ファイル名形式</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>モード</th><th>ファイル名の例</th></tr>
+        <tr><td>標準</td><td><code>username_1234567890_1.jpg</code></td></tr>
+        <tr><td>日付入り</td><td><code>2026-05-10_username_1.jpg</code></td></tr>
+        <tr><td>カスタム</td><td>gallery-dl の変数を使って自由に指定</td></tr>
+      </table>
+    </div>
+
+    <h3>保存先ディレクトリ</h3>
+    <p>
+      テキストボックスに直接パスを入力するか、
+      <strong>📁 ボタン</strong>をクリックしてフォルダー選択ダイアログから選べます。
+    </p>
+    <div class="card">
+      <div class="card-header">デフォルト保存先</div>
+      <div class="card-body" style="font-family:var(--mono);font-size:13px;color:var(--text-mid);">
+        ~/Downloads/x_media
+      </div>
+    </div>
+    <p>クイック選択ボタン（Downloads / Desktop / Pictures）も使えます。</p>
+  </section>
+
+  <!-- ─────────────────────────────── RUN -->
+  <section id="run">
+    <h2><span class="icon">▶</span> 実行する</h2>
+    <p>
+      設定が完了したら、進捗パネル上部の <strong>▶ 実行</strong> ボタンをクリックします。<br>
+      生成されたコマンドが自動的に実行され、進捗パネルにダウンロード状況が表示されます。
+    </p>
+
+    <div class="ui-mock">
+      <div class="ui-mock-header">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#ffbd2e"></div>
+        <div class="dot" style="background:#28ca41"></div>
+        <div class="title">// ダウンロード進捗</div>
+        <span style="font-size:11px;color:#38bdf8;font-family:var(--mono);">実行中...</span>
+      </div>
+      <div class="ui-mock-body" style="color:#7dd3fc;">
+        [twitter][info] Downloading 50 images from ...
+      </div>
+    </div>
+
+    <div class="notice tip">
+      💡 ダウンロード中にレート制限が発生すると、ステータスバーに<br>
+      <code style="font-size:12px;">[twitter][info] Waiting for X minutes until HH:MM:SS (rate limit)</code><br>
+      と表示されます。自動的に待機し、時間が来たら再開されます。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── PROGRESS -->
+  <section id="progress">
+    <h2><span class="icon">📊</span> 進捗パネルの見方</h2>
+
+    <h3>ステータスバー</h3>
+    <p>
+      ファイルリストの上の細い帯に、gallery-dl からのメッセージが
+      リアルタイムで表示されます。レート制限待ちのメッセージもここに出ます。
+    </p>
+
+    <h3>ファイル一覧</h3>
+    <p>ダウンロードされたファイルが1行ずつ追加されます。</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>アイコン</th><th>種別</th></tr>
+        <tr><td>📷</td><td>写真（jpg / png / webp）</td></tr>
+        <tr><td>🎬</td><td>動画（mp4 / webm / mov）</td></tr>
+        <tr><td>🎞</td><td>GIFアニメ</td></tr>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ステータス</th><th>意味</th></tr>
+        <tr><td><span class="badge ok">✓ OK</span></td><td>ダウンロード完了</td></tr>
+        <tr><td><span class="badge skip">↷ skip</span></td><td>すでにダウンロード済みのためスキップ</td></tr>
+        <tr><td><span class="badge err">✕ err</span></td><td>エラーが発生してダウンロードできなかった</td></tr>
+      </table>
+    </div>
+
+    <h3>フッター</h3>
+    <p>パネル下部にダウンロード済みファイルの合計件数が表示されます。</p>
+  </section>
+
+  <!-- ─────────────────────────────── STOP -->
+  <section id="stop">
+    <h2><span class="icon">⏸</span> 停止・一時停止</h2>
+    <div class="table-wrap">
+      <table>
+        <tr><th>ボタン</th><th>動作</th></tr>
+        <tr>
+          <td><strong>⏸ 一時停止</strong></td>
+          <td>ダウンロードを一時停止します。もう一度押すと再開します（▶ 再開 に変わります）。</td>
+        </tr>
+        <tr>
+          <td><strong>■ 停止</strong></td>
+          <td>ダウンロードを完全に中止します。途中でダウンロード済みのファイルは残ります。</td>
+        </tr>
+      </table>
+    </div>
+    <div class="notice info">
+      ℹ️ 一時停止中はファイルのダウンロードが途中で止まります。
+      再開すると続きから再開されます。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── SHUTDOWN -->
+  <section id="shutdown">
+    <h2><span class="icon">⏻</span> サーバーの終了</h2>
+    <p>
+      ツールの使用が終わったら、画面右上の <strong>⏻ サーバー停止</strong> ボタンをクリックしてください。<br>
+      確認ダイアログが表示され、OKを押すとサーバーが終了します。
+    </p>
+    <ol class="step-list">
+      <li><div>「⏻ サーバー停止」ボタンをクリック</div></li>
+      <li><div>確認ダイアログで「OK」をクリック</div></li>
+      <li><div>「✅ サーバーを停止しました。このタブを閉じてください。」が表示されたら完了</div></li>
+      <li><div>ブラウザのタブを閉じ、ターミナルウィンドウも閉じる</div></li>
+    </ol>
+    <div class="notice warn">
+      ⚠️ サーバー停止ボタンを使わずにターミナルを閉じた場合、
+      サーバーがバックグラウンドで動き続けることがあります。
+      その場合は <span class="kbd">control</span> + <span class="kbd">C</span> でターミナルを止めてください。
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────── TROUBLE -->
+  <section id="trouble">
+    <h2><span class="icon">🔧</span> トラブルシューティング</h2>
+
+    <h3>ダウンロードが始まらない / 件数が0件</h3>
+    <ul>
+      <li>Chrome で X（x.com）にログインしているか確認してください</li>
+      <li>ハッシュタグのスペルを確認してください</li>
+      <li>日付範囲が正しく設定されているか確認してください</li>
+    </ul>
+
+    <h3>「終了コード: 2」が表示される</h3>
+    <ul>
+      <li>ステータスバーのメッセージを確認してください</li>
+      <li>X の認証エラーの場合は Chrome で再ログインしてください</li>
+      <li>「最高画質で取得」をオフにして試してみてください</li>
+    </ul>
+
+    <h3>レート制限（Waiting for X minutes...）</h3>
+    <ul>
+      <li>表示された時間まで自動で待機します。そのままお待ちください</li>
+      <li>頻繁に発生する場合は「スリープ」オプションを ON にしてください</li>
+    </ul>
+
+    <h3>ブラウザが自動で開かない</h3>
+    <ul>
+      <li>手動で <code>http://localhost:8765</code> にアクセスしてください</li>
+    </ul>
+
+    <h3>ポート 8765 がすでに使われている</h3>
+    <ul>
+      <li><code>app/main.py</code> の最終行のポート番号を変更してください</li>
+    </ul>
+
+    <hr class="divider">
+
+    <div class="notice info">
+      ℹ️ その他の問題は
+      <a href="https://github.com/zerodelic/x-gallery-dl-commander/issues" style="color:var(--accent2);">GitHub Issues</a>
+      にてご報告ください。
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
