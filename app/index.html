@@ -291,13 +291,14 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
             <label>取得タイプ</label>
             <div class="toggle-group" id="type-group">
               <button class="toggle-btn active" onclick="setType('hashtag', this)">＃ ハッシュタグ</button>
+              <button class="toggle-btn" onclick="setType('keyword', this)">🔍 キーワード</button>
               <button class="toggle-btn" onclick="setType('user_media', this)">👤 ユーザー メディア</button>
               <button class="toggle-btn" onclick="setType('user_likes', this)">❤️ ユーザー いいね</button>
               <button class="toggle-btn" onclick="setType('tweet', this)">📌 単一ツイート</button>
             </div>
           </div>
           <div class="field" id="field-hashtag">
-            <label>ハッシュタグ <span class="hint">（# 不要・複数はカンマ区切り）</span></label>
+            <label id="label-hashtag">ハッシュタグ <span class="hint">（# 不要・複数はカンマ区切り）</span></label>
             <input type="text" id="hashtag" placeholder="風景写真, landscape, 写真好きな人と繋がりたい" oninput="buildCommand()">
           </div>
           <div class="field" id="field-username" style="display:none">
@@ -598,7 +599,7 @@ function applyPreset(key) {
 
   // Sync UI
   document.querySelectorAll('#type-group .toggle-btn').forEach(b => b.classList.remove('active'));
-  const typeMap = { hashtag:0, user_media:1, user_likes:2, tweet:3 };
+  const typeMap = { hashtag:0, keyword:1, user_media:2, user_likes:3, tweet:4 };
   document.querySelectorAll('#type-group .toggle-btn')[typeMap[state.type]]?.classList.add('active');
   updateTypeUI(state.type);
 
@@ -621,9 +622,18 @@ function setType(type, btn) {
 }
 
 function updateTypeUI(type) {
-  document.getElementById('field-hashtag').style.display   = type==='hashtag' ? '' : 'none';
+  document.getElementById('field-hashtag').style.display   = (type==='hashtag'||type==='keyword') ? '' : 'none';
   document.getElementById('field-username').style.display  = (type==='user_media'||type==='user_likes') ? '' : 'none';
   document.getElementById('field-tweeturl').style.display  = type==='tweet' ? '' : 'none';
+  const lbl = document.getElementById('label-hashtag');
+  const inp = document.getElementById('hashtag');
+  if (type === 'keyword') {
+    lbl.innerHTML = 'キーワード <span class="hint">（スペース区切りで AND 検索）</span>';
+    inp.placeholder = '猫 かわいい　 /　 "cute cats"　 /　 cats from:username';
+  } else {
+    lbl.innerHTML = 'ハッシュタグ <span class="hint">（# 不要・複数はカンマ区切り）</span>';
+    inp.placeholder = '風景写真, landscape, 写真好きな人と繋がりたい';
+  }
 }
 
 // ── Date UI ──
@@ -731,6 +741,11 @@ function buildURLs() {
     case 'user_likes':
       if (!user) return null;
       return [`https://x.com/${user}/likes`];
+    case 'keyword': {
+      const kw = tagInput.trim();
+      if (!kw) return null;
+      return [`https://x.com/search?q=${encodeURIComponent(kw)}&f=media`];
+    }
     case 'tweet':
       return turl ? [turl] : null;
   }

@@ -66,6 +66,20 @@ describe('buildURLs', () => {
   test('ツイートURL未入力でnullを返す', () => {
     expect(buildURLs('tweet', '', '', '')).toBeNull();
   });
+
+  test('キーワード検索のURLを生成する', () => {
+    const urls = buildURLs('keyword', '猫 かわいい');
+    expect(urls).toHaveLength(1);
+    expect(urls[0]).toContain('x.com/search');
+    expect(urls[0]).toContain(encodeURIComponent('猫 かわいい'));
+    expect(urls[0]).toContain('f=media');
+    expect(urls[0]).not.toContain('%23');
+  });
+
+  test('キーワード未入力でnullを返す', () => {
+    expect(buildURLs('keyword', '')).toBeNull();
+    expect(buildURLs('keyword', '  ')).toBeNull();
+  });
 });
 
 // ── buildFilenamePattern ───────────────────────────────────

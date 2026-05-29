@@ -16,6 +16,11 @@ export function buildURLs(type, hashtag = '', username = '', tweeturl = '') {
     case 'user_likes':
       if (!username) return null;
       return [`https://x.com/${username}/likes`];
+    case 'keyword': {
+      const kw = hashtag.trim();
+      if (!kw) return null;
+      return [`https://x.com/search?q=${encodeURIComponent(kw)}&f=media`];
+    }
     case 'tweet':
       return tweeturl ? [tweeturl] : null;
     default:
