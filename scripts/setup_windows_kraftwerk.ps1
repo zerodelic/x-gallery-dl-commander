@@ -1,6 +1,5 @@
 # ============================================================
-#  gallery-dl セットアップスクリプト (Windows)
-#  Kraftwerk DL Tool - MACHINE EDITION
+#  X-gallery-dl-commander セットアップ (Windows) - Kraftwerk Edition
 #  PowerShell で実行してください
 # ============================================================
 
@@ -44,20 +43,18 @@ Write-Host ""
 # ── STEP 2: gallery-dl のインストール ────────────────────
 Write-Color "[2/3] gallery-dl を確認中..." $CYAN
 
-$galleryDlExists = $false
 try {
     $ver = (gallery-dl --version 2>&1)
     Write-Color "  ✓ gallery-dl はインストール済みです ($ver)" $GREEN
     Write-Color "    最新版に更新します..." $YELLOW
     winget upgrade --id mikf.gallery-dl --silent 2>$null
-    $galleryDlExists = $true
 } catch {
     Write-Color "  gallery-dl をインストールします..." $YELLOW
     winget install --id mikf.gallery-dl --silent --accept-source-agreements --accept-package-agreements
-    
+
     # PATH を更新
     $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "User") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
-    
+
     Write-Color "  ✓ gallery-dl のインストールが完了しました" $GREEN
 }
 
@@ -67,14 +64,14 @@ Write-Host ""
 Write-Color "[3/3] GUIツールをデスクトップに配置中..." $CYAN
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$htmlSrc   = Join-Path $scriptDir "gallery-dl-commander.html"
+$htmlSrc   = Join-Path $scriptDir "..\editions\kraftwerk\gallery-dl-commander.html"
 $htmlDst   = Join-Path ([Environment]::GetFolderPath("Desktop")) "gallery-dl-commander.html"
 
 if (Test-Path $htmlSrc) {
     Copy-Item $htmlSrc $htmlDst -Force
     Write-Color "  ✓ デスクトップに gallery-dl-commander.html を配置しました" $GREEN
 } else {
-    Write-Color "  ⚠ gallery-dl-commander.html が見つかりません（同じフォルダに置いてください）" $YELLOW
+    Write-Color "  ⚠ gallery-dl-commander.html が見つかりません" $YELLOW
 }
 
 Write-Host ""
@@ -87,11 +84,9 @@ Write-Host ""
 Write-Color "次のステップ:" $WHITE
 Write-Host "  1. Chrome または Edge で x.com にログインしてください"
 Write-Host "  2. デスクトップの gallery-dl-commander.html をブラウザで開く"
-Write-Host "  3. ハッシュタグや条件を設定してコマンドをコピー"
+Write-Host "  3. ハッシュタグやキーワードを設定してコマンドをコピー"
 Write-Host "  4. PowerShell に貼り付けて実行"
 Write-Host ""
 Write-Color "  ※ Windowsでは --cookies-from-browser に chrome または edge を使います" $YELLOW
-Write-Host ""
-Write-Color "  停止したいときは Ctrl + C" $YELLOW
 Write-Host ""
 Read-Host "Enterキーを押して閉じる"

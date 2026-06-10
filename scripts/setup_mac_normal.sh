@@ -1,7 +1,6 @@
 #!/bin/bash
 # ============================================================
-#  gallery-dl セットアップスクリプト (Mac)
-#  Kraftwerk DL Tool - MACHINE EDITION
+#  X-gallery-dl-commander セットアップ (Mac) - ノーマル版
 # ============================================================
 
 set -e
@@ -14,9 +13,9 @@ WHT='\033[1;37m'
 RST='\033[0m'
 
 echo ""
-echo -e "${RED}███████████████████████████████████████████${RST}"
-echo -e "${WHT}   KRAFTWERK DL TOOL - セットアップ開始   ${RST}"
-echo -e "${RED}███████████████████████████████████████████${RST}"
+echo -e "${CYN}=============================================${RST}"
+echo -e "${WHT}   X-gallery-dl-commander セットアップ     ${RST}"
+echo -e "${CYN}=============================================${RST}"
 echo ""
 
 # ── STEP 1: Homebrew ──────────────────────────────────────
@@ -61,28 +60,26 @@ echo ""
 echo -e "${CYN}[3/3] GUIツールをデスクトップに配置中...${RST}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HTML_SRC="${SCRIPT_DIR}/gallery-dl-commander.html"
+HTML_SRC="${SCRIPT_DIR}/../src/gallery-dl-commander.html"
 HTML_DST="${HOME}/Desktop/gallery-dl-commander.html"
 
 if [[ -f "$HTML_SRC" ]]; then
     cp "$HTML_SRC" "$HTML_DST"
     echo -e "${GRN}  ✓ デスクトップに gallery-dl-commander.html を配置しました${RST}"
 else
-    echo -e "${YLW}  ⚠ gallery-dl-commander.html が見つかりません（同じフォルダに置いてください）${RST}"
+    echo -e "${YLW}  ⚠ gallery-dl-commander.html が見つかりません${RST}"
 fi
 
 echo ""
 
 # ── 完了 ──────────────────────────────────────────────────
-echo -e "${RED}███████████████████████████████████████████${RST}"
+echo -e "${CYN}=============================================${RST}"
 echo -e "${WHT}         セットアップ完了！               ${RST}"
-echo -e "${RED}███████████████████████████████████████████${RST}"
+echo -e "${CYN}=============================================${RST}"
 echo ""
 echo -e "${WHT}次のステップ:${RST}"
 echo -e "  1. Chrome で ${CYN}x.com${RST} にログインしてください"
 echo -e "  2. デスクトップの ${CYN}gallery-dl-commander.html${RST} をブラウザで開く"
-echo -e "  3. ハッシュタグや条件を設定してコマンドをコピー"
+echo -e "  3. ハッシュタグやキーワードを設定してコマンドをコピー"
 echo -e "  4. このターミナルに貼り付けて実行"
-echo ""
-echo -e "${YLW}  停止したいときは control + C${RST}"
 echo ""
