@@ -153,10 +153,10 @@ if __name__ == "__main__":
     def _open_browser():
         import time
         time.sleep(1.5)
-        webbrowser.open("http://localhost:8765")
+        webbrowser.open("http://localhost:8766")
 
     threading.Thread(target=_open_browser, daemon=True).start()
     print("X-gallery-dl-commander 起動中...")
-    print("ブラウザで http://localhost:8765 を開きます")
+    print("ブラウザで http://localhost:8766 を開きます")
     print("停止するには Ctrl+C を押してください")
-    uvicorn.run(app, host="127.0.0.1", port=8765, log_level="warning")
+    uvicorn.run(app, host="127.0.0.1", port=8766, log_level="warning")
