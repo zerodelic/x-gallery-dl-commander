@@ -6,37 +6,38 @@ echo   X-gallery-dl-commander
 echo ================================================
 echo.
 
-:: Python チェック
+rem Check Python
 where python >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Python が見つかりません
-    echo         https://www.python.org/downloads/ からインストールしてください
-    echo         インストール時に "Add Python to PATH" にチェックを入れてください
+    echo [ERROR] Python not found.
+    echo         Install from: https://www.python.org/downloads/
+    echo         Check "Add Python to PATH" during install.
     pause
     exit /b 1
 )
 
-:: gallery-dl チェック
+rem Check gallery-dl
 where gallery-dl >nul 2>&1
 if errorlevel 1 (
-    echo [WARN]  gallery-dl が見つかりません
-    echo         winget install mikf.gallery-dl でインストールしてください
+    echo [ERROR] gallery-dl not found.
+    echo         Run: winget install mikf.gallery-dl
     pause
     exit /b 1
 )
 
-:: 依存パッケージのインストール
-echo 依存パッケージを確認中...
+rem Install dependencies
+echo Checking dependencies...
 python -m pip install -r requirements.txt -q
 if errorlevel 1 (
-    echo [ERROR] パッケージインストールに失敗しました
+    echo [ERROR] Failed to install packages.
     pause
     exit /b 1
 )
-echo 準備完了
+
+echo Ready.
 echo.
-echo ブラウザが自動で開きます...
-echo 停止するには Ctrl+C を押してください
+echo Browser will open automatically...
+echo Press Ctrl+C to stop the server.
 echo.
 
 python main.py

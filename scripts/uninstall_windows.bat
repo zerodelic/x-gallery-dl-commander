@@ -5,45 +5,43 @@ set INSTALL_DIR=%LOCALAPPDATA%\gallery-dl-commander
 
 echo.
 echo =============================================
-echo  X-gallery-dl-commander アンインストーラー
+echo   X-gallery-dl-commander Uninstaller
 echo =============================================
 echo.
 
-:: ── アプリ本体を削除 ──────────────────────────
+rem Remove app folder
 if exist "%INSTALL_DIR%" (
-    echo   削除します: %INSTALL_DIR%
+    echo Removing %INSTALL_DIR% ...
     rmdir /S /Q "%INSTALL_DIR%"
-    echo   OK アプリを削除しました
+    echo   OK Removed.
 ) else (
-    echo   アプリフォルダが見つかりません（スキップ）
+    echo   App folder not found. Skipping.
 )
 
-:: ── デスクトップのファイルを削除 ──────────────
+rem Remove Desktop files
 if exist "%USERPROFILE%\Desktop\gallery-dl-commander.bat" (
     del /Q "%USERPROFILE%\Desktop\gallery-dl-commander.bat"
-    echo   OK ランチャー (.bat) を削除しました
+    echo   OK Removed launcher from Desktop.
 )
 if exist "%USERPROFILE%\Desktop\gallery-dl-commander.html" (
     del /Q "%USERPROFILE%\Desktop\gallery-dl-commander.html"
-    echo   OK HTML ファイルを削除しました
+    echo   OK Removed HTML file from Desktop.
 )
 
 echo.
-
-:: ── gallery-dl の削除（選択式）────────────────
-echo gallery-dl について
-echo   gallery-dl は他の用途でも使えるため、デフォルトでは削除しません。
-set /p ANSWER="  gallery-dl もアンインストールしますか？ [y/N]: "
+echo gallery-dl is not removed by default
+echo (it may be used by other tools).
+set /p ANSWER="Uninstall gallery-dl too? [y/N]: "
 if /i "!ANSWER!"=="y" (
     winget uninstall --id mikf.gallery-dl --silent
-    echo   OK gallery-dl を削除しました
+    echo   OK gallery-dl removed.
 ) else (
-    echo   スキップしました
+    echo   Skipped.
 )
 
 echo.
 echo =============================================
-echo       アンインストール完了！
+echo   Uninstall complete!
 echo =============================================
 echo.
 pause
