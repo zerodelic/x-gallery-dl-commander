@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ================================================
@@ -7,37 +6,37 @@ echo   X-gallery-dl-commander
 echo ================================================
 echo.
 
-:: Python ãƒã‚§ãƒƒã‚¯
+:: Python ƒ`ƒFƒbƒN
 where python >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Python ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“
-    echo         https://www.python.org/downloads/ ã‹ã‚‰ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãã ã•ã„
-    echo         â€» ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«æ™‚ã«ã€ŒAdd Python to PATHã€ã«ãƒã‚§ãƒƒã‚¯ã‚’å…¥ã‚Œã¦ãã ã•ã„
+    echo [ERROR] Python ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ
+    echo         https://www.python.org/downloads/ ‚©‚çƒCƒ“ƒXƒg[ƒ‹‚µ‚Ä‚­‚¾‚³‚¢
+    echo         ƒCƒ“ƒXƒg[ƒ‹Žž‚É "Add Python to PATH" ‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚Ä‚­‚¾‚³‚¢
     pause
     exit /b 1
 )
 
-:: gallery-dl ãƒã‚§ãƒƒã‚¯
+:: gallery-dl ƒ`ƒFƒbƒN
 where gallery-dl >nul 2>&1
 if errorlevel 1 (
-    echo [WARN]  gallery-dl ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“
-    echo         winget install mikf.gallery-dl ã§ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãã ã•ã„
+    echo [WARN]  gallery-dl ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ
+    echo         winget install mikf.gallery-dl ‚ÅƒCƒ“ƒXƒg[ƒ‹‚µ‚Ä‚­‚¾‚³‚¢
     pause
     exit /b 1
 )
 
-:: ä¾å­˜ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«
-echo ä¾å­˜ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚’ç¢ºèªä¸­...
+:: ˆË‘¶ƒpƒbƒP[ƒW‚ÌƒCƒ“ƒXƒg[ƒ‹
+echo ˆË‘¶ƒpƒbƒP[ƒW‚ðŠm”F’†...
 python -m pip install -r requirements.txt -q
 if errorlevel 1 (
-    echo [ERROR] ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã«å¤±æ•—ã—ã¾ã—ãŸ
+    echo [ERROR] ƒpƒbƒP[ƒWƒCƒ“ƒXƒg[ƒ‹‚ÉŽ¸”s‚µ‚Ü‚µ‚½
     pause
     exit /b 1
 )
-echo æº–å‚™å®Œäº†
+echo €”õŠ®—¹
 echo.
-echo ãƒ–ãƒ©ã‚¦ã‚¶ãŒè‡ªå‹•ã§é–‹ãã¾ã™...
-echo åœæ­¢ã™ã‚‹ã«ã¯ Ctrl+C ã‚’æŠ¼ã—ã¦ãã ã•ã„
+echo ƒuƒ‰ƒEƒU‚ªŽ©“®‚ÅŠJ‚«‚Ü‚·...
+echo ’âŽ~‚·‚é‚É‚Í Ctrl+C ‚ð‰Ÿ‚µ‚Ä‚­‚¾‚³‚¢
 echo.
 
 python main.py

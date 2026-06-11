@@ -1,50 +1,49 @@
 @echo off
-chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 set INSTALL_DIR=%LOCALAPPDATA%\gallery-dl-commander
 
 echo.
 echo =============================================
-echo  X-gallery-dl-commander ã‚¢ãƒ³ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ãƒ¼
+echo  X-gallery-dl-commander ƒAƒ“ƒCƒ“ƒXƒg[ƒ‰[
 echo =============================================
 echo.
 
-:: â”€â”€ ã‚¢ãƒ—ãƒªæœ¬ä½“ã‚’å‰Šé™¤ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+:: „Ÿ„Ÿ ƒAƒvƒŠ–{‘Ì‚ðíœ „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
 if exist "%INSTALL_DIR%" (
-    echo   å‰Šé™¤ã—ã¾ã™: %INSTALL_DIR%
+    echo   íœ‚µ‚Ü‚·: %INSTALL_DIR%
     rmdir /S /Q "%INSTALL_DIR%"
-    echo   OK ã‚¢ãƒ—ãƒªã‚’å‰Šé™¤ã—ã¾ã—ãŸ
+    echo   OK ƒAƒvƒŠ‚ðíœ‚µ‚Ü‚µ‚½
 ) else (
-    echo   ã‚¢ãƒ—ãƒªãƒ•ã‚©ãƒ«ãƒ€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ï¼ˆã‚¹ã‚­ãƒƒãƒ—ï¼‰
+    echo   ƒAƒvƒŠƒtƒHƒ‹ƒ_‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñiƒXƒLƒbƒvj
 )
 
-:: â”€â”€ ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+:: „Ÿ„Ÿ ƒfƒXƒNƒgƒbƒv‚Ìƒtƒ@ƒCƒ‹‚ðíœ „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
 if exist "%USERPROFILE%\Desktop\gallery-dl-commander.bat" (
     del /Q "%USERPROFILE%\Desktop\gallery-dl-commander.bat"
-    echo   OK ãƒ©ãƒ³ãƒãƒ£ãƒ¼ (.bat) ã‚’å‰Šé™¤ã—ã¾ã—ãŸ
+    echo   OK ƒ‰ƒ“ƒ`ƒƒ[ (.bat) ‚ðíœ‚µ‚Ü‚µ‚½
 )
 if exist "%USERPROFILE%\Desktop\gallery-dl-commander.html" (
     del /Q "%USERPROFILE%\Desktop\gallery-dl-commander.html"
-    echo   OK HTML ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å‰Šé™¤ã—ã¾ã—ãŸ
+    echo   OK HTML ƒtƒ@ƒCƒ‹‚ðíœ‚µ‚Ü‚µ‚½
 )
 
 echo.
 
-:: â”€â”€ gallery-dl ã®å‰Šé™¤ï¼ˆé¸æŠžå¼ï¼‰â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo gallery-dl ã«ã¤ã„ã¦
-echo   gallery-dl ã¯ä»–ã®ç”¨é€”ã§ã‚‚ä½¿ãˆã‚‹ãŸã‚ã€ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ã¯å‰Šé™¤ã—ã¾ã›ã‚“ã€‚
-set /p ANSWER="  gallery-dl ã‚‚ã‚¢ãƒ³ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™ã‹ï¼Ÿ [y/N]: "
+:: „Ÿ„Ÿ gallery-dl ‚Ìíœi‘I‘ðŽ®j„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo gallery-dl ‚É‚Â‚¢‚Ä
+echo   gallery-dl ‚Í‘¼‚Ì—p“r‚Å‚àŽg‚¦‚é‚½‚ßAƒfƒtƒHƒ‹ƒg‚Å‚Ííœ‚µ‚Ü‚¹‚ñB
+set /p ANSWER="  gallery-dl ‚àƒAƒ“ƒCƒ“ƒXƒg[ƒ‹‚µ‚Ü‚·‚©H [y/N]: "
 if /i "!ANSWER!"=="y" (
     winget uninstall --id mikf.gallery-dl --silent
-    echo   OK gallery-dl ã‚’å‰Šé™¤ã—ã¾ã—ãŸ
+    echo   OK gallery-dl ‚ðíœ‚µ‚Ü‚µ‚½
 ) else (
-    echo   ã‚¹ã‚­ãƒƒãƒ—ã—ã¾ã—ãŸ
+    echo   ƒXƒLƒbƒv‚µ‚Ü‚µ‚½
 )
 
 echo.
 echo =============================================
-echo       ã‚¢ãƒ³ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å®Œäº†ï¼
+echo       ƒAƒ“ƒCƒ“ƒXƒg[ƒ‹Š®—¹I
 echo =============================================
 echo.
 pause

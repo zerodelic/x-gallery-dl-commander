@@ -1,8 +1,7 @@
 @echo off
-chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-:: ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å…ˆã¨ä½œæ¥­ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’è¨­å®š
+:: ƒCƒ“ƒXƒg[ƒ‹æ‚Æì‹ÆƒfƒBƒŒƒNƒgƒŠ‚ðÝ’è
 set INSTALL_DIR=%LOCALAPPDATA%\gallery-dl-commander
 pushd %~dp0..
 set REPO_DIR=%CD%
@@ -10,99 +9,99 @@ popd
 
 echo.
 echo =============================================
-echo    X-gallery-dl-commander ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ãƒ¼
+echo    X-gallery-dl-commander ƒCƒ“ƒXƒg[ƒ‰[
 echo =============================================
 echo.
-echo ã€å‰ææ¡ä»¶ã€‘
-echo   ã“ã®ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ãƒ¼ã¯ä»¥ä¸‹ã‚’ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã—ã¾ã™ï¼š
+echo y‘O’ñðŒz
+echo   ‚±‚ÌƒCƒ“ƒXƒg[ƒ‰[‚ÍˆÈ‰º‚ðƒZƒbƒgƒAƒbƒv‚µ‚Ü‚·F
 echo   - gallery-dl
-echo   - Python ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ï¼ˆfastapi / uvicornï¼‰
+echo   - Python ƒpƒbƒP[ƒWifastapi / uvicornj
 echo.
-echo   Python 3.10 ä»¥ä¸ŠãŒåˆ¥é€”å¿…è¦ã§ã™ã€‚
-echo   æœªã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã®å ´åˆã¯å…ˆã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãã ã•ã„ï¼š
+echo   Python 3.10 ˆÈã‚ª•Ê“r•K—v‚Å‚·B
+echo   –¢ƒCƒ“ƒXƒg[ƒ‹‚Ìê‡‚Íæ‚ÉƒCƒ“ƒXƒg[ƒ‹‚µ‚Ä‚­‚¾‚³‚¢F
 echo     https://www.python.org/downloads/
-echo     â€» ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«æ™‚ã«ã€ŒAdd Python to PATHã€ã«ãƒã‚§ãƒƒã‚¯ã‚’å…¥ã‚Œã¦ãã ã•ã„
+echo     ¦ ƒCƒ“ƒXƒg[ƒ‹Žž‚ÉuAdd Python to PATHv‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚Ä‚­‚¾‚³‚¢
 echo.
-echo   Python ã¯ãƒ–ãƒ©ã‚¦ã‚¶ UI ã¨ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰å‡¦ç†ã‚’ç¹‹ã
-echo   ãƒ­ãƒ¼ã‚«ãƒ«ã‚µãƒ¼ãƒãƒ¼ã®å®Ÿè¡Œã«ä½¿ç”¨ã—ã¾ã™ã€‚
+echo   Python ‚Íƒuƒ‰ƒEƒU UI ‚Æƒ_ƒEƒ“ƒ[ƒhˆ—‚ðŒq‚®
+echo   ƒ[ƒJƒ‹ƒT[ƒo[‚ÌŽÀs‚ÉŽg—p‚µ‚Ü‚·B
 echo.
 pause
 echo.
 
-:: â”€â”€ STEP 1: winget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo [1/5] winget ã‚’ç¢ºèªä¸­...
+:: „Ÿ„Ÿ STEP 1: winget „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo [1/5] winget ‚ðŠm”F’†...
 where winget >nul 2>&1
 if errorlevel 1 (
-    echo   [ERROR] winget ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“
-    echo   Microsoft Store ã‹ã‚‰ã€Œã‚¢ãƒ—ãƒª ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ©ãƒ¼ã€ã‚’æ›´æ–°ã—ã¦ãã ã•ã„
+    echo   [ERROR] winget ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ
+    echo   Microsoft Store ‚©‚çuƒAƒvƒŠ ƒCƒ“ƒXƒg[ƒ‰[v‚ðXV‚µ‚Ä‚­‚¾‚³‚¢
     pause
     exit /b 1
 )
-echo   OK winget ãŒä½¿ç”¨å¯èƒ½ã§ã™
+echo   OK winget ‚ªŽg—p‰Â”\‚Å‚·
 echo.
 
-:: â”€â”€ STEP 2: gallery-dl â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo [2/5] gallery-dl ã‚’ç¢ºèªä¸­...
+:: „Ÿ„Ÿ STEP 2: gallery-dl „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo [2/5] gallery-dl ‚ðŠm”F’†...
 where gallery-dl >nul 2>&1
 if errorlevel 1 (
-    echo   ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¾ã™...
+    echo   ƒCƒ“ƒXƒg[ƒ‹‚µ‚Ü‚·...
     winget install --id mikf.gallery-dl --silent --accept-source-agreements --accept-package-agreements
-    echo   OK ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å®Œäº†
+    echo   OK ƒCƒ“ƒXƒg[ƒ‹Š®—¹
 ) else (
-    echo   OK ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«æ¸ˆã¿ã§ã™
+    echo   OK ƒCƒ“ƒXƒg[ƒ‹Ï‚Ý‚Å‚·
     winget upgrade --id mikf.gallery-dl --silent >nul 2>&1
 )
 echo.
 
-:: â”€â”€ STEP 3: Python â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo [3/5] Python ã‚’ç¢ºèªä¸­...
+:: „Ÿ„Ÿ STEP 3: Python „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo [3/5] Python ‚ðŠm”F’†...
 where python >nul 2>&1
 if errorlevel 1 (
-    echo   [ERROR] Python ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“
-    echo   https://www.python.org/downloads/ ã‹ã‚‰ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å¾Œã€å†å®Ÿè¡Œã—ã¦ãã ã•ã„
+    echo   [ERROR] Python ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ
+    echo   https://www.python.org/downloads/ ‚©‚çƒCƒ“ƒXƒg[ƒ‹ŒãAÄŽÀs‚µ‚Ä‚­‚¾‚³‚¢
     pause
     exit /b 1
 )
 python --version
 echo.
 
-:: â”€â”€ STEP 4: ã‚¢ãƒ—ãƒªã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ« â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo [4/5] ã‚¢ãƒ—ãƒªã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ä¸­...
+:: „Ÿ„Ÿ STEP 4: ƒAƒvƒŠ‚ðƒCƒ“ƒXƒg[ƒ‹ „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo [4/5] ƒAƒvƒŠ‚ðƒCƒ“ƒXƒg[ƒ‹’†...
 if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
 xcopy /E /Y /I "%REPO_DIR%\app" "%INSTALL_DIR%" >nul
-echo   OK %INSTALL_DIR% ã«ã‚³ãƒ”ãƒ¼å®Œäº†
+echo   OK %INSTALL_DIR% ‚ÉƒRƒs[Š®—¹
 
-echo   Python ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚’ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ä¸­...
+echo   Python ƒpƒbƒP[ƒW‚ðƒCƒ“ƒXƒg[ƒ‹’†...
 python -m pip install fastapi uvicorn -q
-echo   OK ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å®Œäº†
+echo   OK ƒpƒbƒP[ƒWƒCƒ“ƒXƒg[ƒ‹Š®—¹
 
-:: ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã«ãƒ©ãƒ³ãƒãƒ£ãƒ¼ã‚’ç”Ÿæˆï¼ˆstart.bat ã‚’å‘¼ã³å‡ºã™ã ã‘ï¼‰
+:: ƒfƒXƒNƒgƒbƒv‚Éƒ‰ƒ“ƒ`ƒƒ[‚ð¶¬istart.bat ‚ðŒÄ‚Ño‚·‚¾‚¯j
 set BAT_DST=%USERPROFILE%\Desktop\gallery-dl-commander.bat
 (
     echo @echo off
     echo cd /d "%INSTALL_DIR%"
     echo call start.bat
 ) > "%BAT_DST%"
-echo   OK ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã«ãƒ©ãƒ³ãƒãƒ£ãƒ¼ (gallery-dl-commander.bat) ã‚’ä½œæˆã—ã¾ã—ãŸ
+echo   OK ƒfƒXƒNƒgƒbƒv‚Éƒ‰ƒ“ƒ`ƒƒ[ (gallery-dl-commander.bat) ‚ðì¬‚µ‚Ü‚µ‚½
 echo.
 
-:: â”€â”€ STEP 5: HTMLç‰ˆã‚’ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã¸ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-echo [5/5] HTMLç‰ˆã‚’ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã«é…ç½®ä¸­...
+:: „Ÿ„Ÿ STEP 5: HTML”Å‚ðƒfƒXƒNƒgƒbƒv‚Ö „Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ
+echo [5/5] HTML”Å‚ðƒfƒXƒNƒgƒbƒv‚É”z’u’†...
 copy /Y "%REPO_DIR%\src\gallery-dl-commander.html" "%USERPROFILE%\Desktop\gallery-dl-commander.html" >nul
-echo   OK ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã«é…ç½®ã—ã¾ã—ãŸ
+echo   OK ƒfƒXƒNƒgƒbƒv‚É”z’u‚µ‚Ü‚µ‚½
 echo.
 
 echo =============================================
-echo          ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«å®Œäº†ï¼
+echo          ƒCƒ“ƒXƒg[ƒ‹Š®—¹I
 echo =============================================
 echo.
-echo ã€ã‚¢ãƒ—ãƒªç‰ˆã®èµ·å‹•ã€‘
-echo   ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã® gallery-dl-commander.bat ã‚’ãƒ€ãƒ–ãƒ«ã‚¯ãƒªãƒƒã‚¯
+echo yƒAƒvƒŠ”Å‚Ì‹N“®z
+echo   ƒfƒXƒNƒgƒbƒv‚Ì gallery-dl-commander.bat ‚ðƒ_ƒuƒ‹ƒNƒŠƒbƒN
 echo.
-echo ã€HTMLç‰ˆã®èµ·å‹•ã€‘
-echo   ãƒ‡ã‚¹ã‚¯ãƒˆãƒƒãƒ—ã® gallery-dl-commander.html ã‚’ãƒ–ãƒ©ã‚¦ã‚¶ã§é–‹ã
+echo yHTML”Å‚Ì‹N“®z
+echo   ƒfƒXƒNƒgƒbƒv‚Ì gallery-dl-commander.html ‚ðƒuƒ‰ƒEƒU‚ÅŠJ‚­
 echo.
-echo ã€ã‚¢ãƒ³ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã€‘
-echo   scripts\uninstall_windows.bat ã‚’å®Ÿè¡Œ
+echo yƒAƒ“ƒCƒ“ƒXƒg[ƒ‹z
+echo   scripts\uninstall_windows.bat ‚ðŽÀs
 echo.
 pause
