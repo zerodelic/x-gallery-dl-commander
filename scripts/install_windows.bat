@@ -76,13 +76,12 @@ echo   Python パッケージをインストール中...
 python -m pip install fastapi uvicorn -q
 echo   OK パッケージインストール完了
 
-:: デスクトップにランチャーを生成
+:: デスクトップにランチャーを生成（start.bat を呼び出すだけ）
 set BAT_DST=%USERPROFILE%\Desktop\gallery-dl-commander.bat
 (
     echo @echo off
-    echo chcp 65001 ^>nul
     echo cd /d "%INSTALL_DIR%"
-    echo python main.py
+    echo call start.bat
 ) > "%BAT_DST%"
 echo   OK デスクトップにランチャー (gallery-dl-commander.bat) を作成しました
 echo.
