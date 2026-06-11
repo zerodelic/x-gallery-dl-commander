@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 #  X-gallery-dl-commander セットアップ (Windows) - ノーマル版
 #  PowerShell で実行してください
 # ============================================================
@@ -51,8 +51,10 @@ try {
     Write-Color "  gallery-dl をインストールします..." $YELLOW
     winget install --id mikf.gallery-dl --silent --accept-source-agreements --accept-package-agreements
 
-    # PATH を更新
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "User") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+    # PATH refresh
+    $userPath    = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    $machinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $env:PATH    = $userPath + ";" + $machinePath
 
     Write-Color "  ✓ gallery-dl のインストールが完了しました" $GREEN
 }
