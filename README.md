@@ -80,10 +80,14 @@ x-gallery-dl-commander/
 │   └── kraftwerk/
 │       └── gallery-dl-commander.html  ← Kraftwerk Edition（赤テーマ）
 ├── scripts/
-│   ├── setup_mac_normal.sh          ← Mac セットアップ（ノーマル版）
-│   ├── setup_mac_kraftwerk.sh       ← Mac セットアップ（Kraftwerk Edition）
-│   ├── setup_windows_normal.ps1     ← Windows セットアップ（ノーマル版）
-│   └── setup_windows_kraftwerk.ps1  ← Windows セットアップ（Kraftwerk Edition）
+│   ├── install_mac.sh               ← Mac インストーラー（アプリ版 + HTML版）
+│   ├── install_windows.ps1          ← Windows インストーラー（アプリ版 + HTML版）
+│   ├── uninstall_mac.sh             ← Mac アンインストーラー
+│   ├── uninstall_windows.ps1        ← Windows アンインストーラー
+│   ├── setup_mac_normal.sh          ← Mac セットアップ（HTML版のみ・ノーマル）
+│   ├── setup_mac_kraftwerk.sh       ← Mac セットアップ（HTML版のみ・Kraftwerk）
+│   ├── setup_windows_normal.ps1     ← Windows セットアップ（HTML版のみ・ノーマル）
+│   └── setup_windows_kraftwerk.ps1  ← Windows セットアップ（HTML版のみ・Kraftwerk）
 ├── docs/
 │   └── manual.html              ← HTML 形式の取扱説明書
 └── README.md
