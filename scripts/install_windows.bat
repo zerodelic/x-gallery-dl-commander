@@ -13,6 +13,21 @@ echo =============================================
 echo    X-gallery-dl-commander インストーラー
 echo =============================================
 echo.
+echo 【前提条件】
+echo   このインストーラーは以下をセットアップします：
+echo   - gallery-dl
+echo   - Python パッケージ（fastapi / uvicorn）
+echo.
+echo   Python 3.10 以上が別途必要です。
+echo   未インストールの場合は先にインストールしてください：
+echo     https://www.python.org/downloads/
+echo     ※ インストール時に「Add Python to PATH」にチェックを入れてください
+echo.
+echo   Python はブラウザ UI とダウンロード処理を繋ぐ
+echo   ローカルサーバーの実行に使用します。
+echo.
+pause
+echo.
 
 :: ── STEP 1: winget ────────────────────────────
 echo [1/5] winget を確認中...

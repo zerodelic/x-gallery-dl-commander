@@ -15,7 +15,9 @@ X（旧Twitter）のハッシュタグ・ユーザーから画像・動画を一
 
 ### 必要なもの
 
-- **Python 3.10+**
+- **Python 3.10+**（ブラウザ UI と gallery-dl を繋ぐローカルサーバーの実行に使用）
+  - Mac: `brew install python3`
+  - Windows: [python.org](https://www.python.org/downloads/)（インストール時に「Add Python to PATH」にチェック）
 - **gallery-dl**（`brew install gallery-dl`）
 - **Chrome**（X にログイン済みであること）
 
