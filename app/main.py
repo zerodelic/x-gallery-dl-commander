@@ -60,6 +60,15 @@ async def stream(job_id: str):
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e), 'done': True})}\n\n"
         finally:
+            proc = job.get("process")
+            if proc and proc.returncode is None:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+                except Exception:
+                    try:
+                        proc.terminate()
+                    except Exception:
+                        pass
             jobs.pop(job_id, None)
 
     return StreamingResponse(
@@ -109,7 +118,7 @@ async def resume_job(job_id: str):
 
 @app.get("/pick-directory")
 async def pick_directory():
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     path = await loop.run_in_executor(None, _show_dir_dialog)
     return {"path": path}
 

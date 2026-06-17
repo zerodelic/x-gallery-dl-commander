@@ -945,9 +945,10 @@ document.getElementById('hashtag').value       = '';
 document.getElementById('cb-photo').checked    = true;
 document.getElementById('cb-video').checked    = true;
 document.getElementById('cb-gif').checked      = false;
-document.getElementById('date-enabled').checked = true;
-document.getElementById('date-after').value    = '2026-04-28';
-document.getElementById('date-before').value   = '2026-05-03';
+document.getElementById('opt-orig').checked    = true;
+document.getElementById('date-enabled').checked = false;
+document.getElementById('date-after').value    = '';
+document.getElementById('date-before').value   = '';
 toggleDateUI();
 updateRange(0);
 buildCommand();
@@ -960,7 +961,11 @@ let _fileCount    = 0;
 
 function _setProgMessage(text, type) {
   const el = document.getElementById('prog-msgbar');
-  el.innerHTML = `<span class="msg-${type}">${text}</span>`;
+  el.textContent = '';
+  const span = document.createElement('span');
+  span.className = 'msg-' + type;
+  span.textContent = text;
+  el.appendChild(span);
 }
 
 function _fileIcon(fname) {
@@ -979,11 +984,25 @@ function _addFileRow(num, filename, stClass, stText) {
   if (idle) idle.remove();
   const row = document.createElement('div');
   row.className = 'file-row';
-  row.innerHTML =
-    `<span class="file-num">${num}</span>` +
-    `<span class="file-icon">${_fileIcon(filename)}</span>` +
-    `<span class="file-name" title="${filename}">${filename}</span>` +
-    `<span class="file-status ${stClass}">${stText}</span>`;
+
+  const numEl = document.createElement('span');
+  numEl.className = 'file-num';
+  numEl.textContent = num;
+
+  const iconEl = document.createElement('span');
+  iconEl.className = 'file-icon';
+  iconEl.textContent = _fileIcon(filename);
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'file-name';
+  nameEl.title = filename;
+  nameEl.textContent = filename;
+
+  const statusEl = document.createElement('span');
+  statusEl.className = 'file-status ' + stClass;
+  statusEl.textContent = stText;
+
+  row.append(numEl, iconEl, nameEl, statusEl);
   list.appendChild(row);
   list.scrollTop = list.scrollHeight;
 }
