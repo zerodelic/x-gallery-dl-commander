@@ -679,7 +679,7 @@ const state = {
   filename: 'default',
   customFname: '{user[name]}_{tweet_id}_{num}.{extension}',
   directory: '~/Downloads/x_media',
-  sleep: false,
+  sleep: true,
   noskip: false,
   orig: true,
 };
@@ -1044,9 +1044,9 @@ function resetAll() {
   toggleDateUI();
   applyPreset('hashtag_all');
   document.getElementById('directory').value = '~/Downloads/x_media';
-  document.getElementById('opt-sleep').checked    = false;
+  document.getElementById('opt-sleep').checked    = true;
   document.getElementById('opt-noskip').checked   = false;
-  document.getElementById('opt-orig').checked     = false;
+  document.getElementById('opt-orig').checked     = true;
   document.getElementById('opt-metadata').checked = false;
   buildCommand();
 }
@@ -1060,9 +1060,11 @@ document.getElementById('hashtag').value       = 'kraftwerk';
 document.getElementById('cb-photo').checked    = true;
 document.getElementById('cb-video').checked    = true;
 document.getElementById('cb-gif').checked      = false;
-document.getElementById('date-enabled').checked = true;
-document.getElementById('date-after').value    = '2026-04-28';
-document.getElementById('date-before').value   = '2026-05-03';
+document.getElementById('opt-sleep').checked   = true;
+document.getElementById('opt-orig').checked    = true;
+document.getElementById('date-enabled').checked = false;
+document.getElementById('date-after').value    = '';
+document.getElementById('date-before').value   = '';
 toggleDateUI();
 updateRange(0);
 buildCommand();
