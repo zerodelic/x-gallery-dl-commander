@@ -955,6 +955,7 @@ updateRange(0);
 buildCommand();
 
 // ── App execution ──
+const MAX_LOG_ROWS = 500;
 let _currentJobId = null;
 let _eventSource  = null;
 let _paused       = false;
@@ -983,6 +984,8 @@ function _addFileRow(num, filename, stClass, stText) {
   const list = document.getElementById('progress-log');
   const idle = list.querySelector('.idle-msg');
   if (idle) idle.remove();
+  const rows = list.querySelectorAll('.file-row');
+  if (rows.length >= MAX_LOG_ROWS) rows[0].remove();
   const row = document.createElement('div');
   row.className = 'file-row';
 
@@ -1089,7 +1092,12 @@ async function pauseDownload() {
   const pauseBtn = document.getElementById('pause-btn');
   const status   = document.getElementById('progress-status');
   if (!_paused) {
-    await fetch(`/pause/${_currentJobId}`, {method:'POST'});
+    const res = await fetch(`/pause/${_currentJobId}`, {method:'POST'});
+    const data = await res.json();
+    if (!data.ok) {
+      _setProgMessage('一時停止はこの環境では利用できません', 'warn');
+      return;
+    }
     _paused = true;
     pauseBtn.textContent = '▶ 再開';
     status.textContent = '⏸ 一時停止中'; status.className = 'progress-status paused';

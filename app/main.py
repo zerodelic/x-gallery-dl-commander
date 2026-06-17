@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import signal
+import sys
 import threading
 import uuid
 import webbrowser
@@ -14,12 +15,13 @@ from pydantic import BaseModel
 
 app = FastAPI()
 HTML_PATH = Path(__file__).parent / "index.html"
+_html_content = HTML_PATH.read_text(encoding="utf-8")
 jobs: dict[str, dict] = {}
 
 
 @app.get("/")
 async def index():
-    return HTMLResponse(HTML_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(_html_content)
 
 
 class RunRequest(BaseModel):
@@ -30,6 +32,14 @@ class RunRequest(BaseModel):
 async def run_job(req: RunRequest):
     job_id = str(uuid.uuid4())
     jobs[job_id] = {"process": None, "cmd": req.cmd}
+
+    async def _expire():
+        await asyncio.sleep(30)
+        job = jobs.get(job_id)
+        if job and job.get("process") is None:
+            jobs.pop(job_id, None)
+
+    asyncio.create_task(_expire())
     return {"job_id": job_id}
 
 
@@ -94,6 +104,8 @@ async def stop_job(job_id: str):
 
 @app.post("/pause/{job_id}")
 async def pause_job(job_id: str):
+    if sys.platform == "win32":
+        return {"ok": False, "reason": "pause not supported on Windows"}
     if job_id in jobs:
         proc = jobs[job_id].get("process")
         if proc and proc.returncode is None:
@@ -106,6 +118,8 @@ async def pause_job(job_id: str):
 
 @app.post("/resume/{job_id}")
 async def resume_job(job_id: str):
+    if sys.platform == "win32":
+        return {"ok": False, "reason": "resume not supported on Windows"}
     if job_id in jobs:
         proc = jobs[job_id].get("process")
         if proc and proc.returncode is None:
