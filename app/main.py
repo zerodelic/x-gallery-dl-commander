@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import shutil
 import signal
 import sys
 import threading
@@ -17,6 +18,14 @@ app = FastAPI()
 HTML_PATH = Path(__file__).parent / "index.html"
 _html_content = HTML_PATH.read_text(encoding="utf-8")
 jobs: dict[str, dict] = {}
+
+_SUBPROCESS_ENV: dict[str, str] = {**os.environ, "PYTHONUNBUFFERED": "1"}
+if sys.platform == "darwin":
+    _SUBPROCESS_ENV["PATH"] = (
+        "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin"
+        + ":" + (os.environ.get("PATH") or "/usr/bin:/bin")
+    )
+_gallery_dl_bin = shutil.which("gallery-dl", path=_SUBPROCESS_ENV.get("PATH")) or "gallery-dl"
 
 
 @app.get("/")
@@ -53,12 +62,14 @@ async def stream(job_id: str):
     async def generate():
         job = jobs[job_id]
         cmd = job["cmd"]
+        if cmd.startswith("gallery-dl"):
+            cmd = _gallery_dl_bin + cmd[len("gallery-dl"):]
         try:
             process = await asyncio.create_subprocess_shell(
                 cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
-                env={**os.environ, "PYTHONUNBUFFERED": "1"},
+                env=_SUBPROCESS_ENV,
                 start_new_session=True,
             )
             job["process"] = process

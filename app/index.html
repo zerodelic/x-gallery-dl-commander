@@ -802,6 +802,15 @@ function buildMediaFilter() {
   return `"extension in (${exts.join(', ')})"`;
 }
 
+// ── Shell / HTML safety helpers ──
+function shellQuote(s) {
+  // POSIX single-quote quoting: safe for all chars including $, `, \, "
+  return "'" + s.replace(/'/g, "'\\''") + "'";
+}
+function htmlEsc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ── Build command ──
 let _rawCommand = ''; // コピー用にプレーンテキストを保持
 
@@ -913,8 +922,8 @@ function buildCommand() {
       rawLines[rawLines.length-1]   = lastRaw  + ' \\';
       htmlLines[htmlLines.length-1] = lastHtml + ' \\';
     }
-    rawLines.push(`  "${url}"`);
-    htmlLines.push(`  <span class="url">"${url}"</span>`);
+    rawLines.push(`  ${shellQuote(url)}`);
+    htmlLines.push(`  <span class="url">'${htmlEsc(url)}'</span>`);
 
     allRaw.push(...rawLines);
     allHtml.push(...htmlLines);
