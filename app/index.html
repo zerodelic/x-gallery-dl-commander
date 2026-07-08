@@ -889,12 +889,12 @@ function buildCommand() {
     );
     if (state.orig) {
       addLine(
-        `  --config-option extractor.twitter.size=orig \\`,
-        `  <span class="flag">--config-option</span> <span class="val">extractor.twitter.size=orig</span> \\`
+        `  --option extractor.twitter.size=orig \\`,
+        `  <span class="flag">--option</span> <span class="val">extractor.twitter.size=orig</span> \\`
       );
       addLine(
-        `  --config-option extractor.x.size=orig \\`,
-        `  <span class="flag">--config-option</span> <span class="val">extractor.x.size=orig</span> \\`
+        `  --option extractor.x.size=orig \\`,
+        `  <span class="flag">--option</span> <span class="val">extractor.x.size=orig</span> \\`
       );
     }
     if (state.metadata) addLine(
