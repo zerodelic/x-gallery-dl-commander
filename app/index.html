@@ -424,6 +424,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
           <button class="toggle-btn" onclick="setRange(100)">100</button>
           <button class="toggle-btn" onclick="setRange(0)">無制限</button>
         </div>
+        <div id="range-note" style="display:none;margin-top:8px;font-size:11px;color:var(--text-dim)"></div>
       </div>
     </div>
 
@@ -828,7 +829,20 @@ function buildCommand() {
     document.getElementById('cmd-output').innerHTML =
       '<span style="color:var(--text-dim)">← 取得対象を入力してください</span>';
     _rawCommand = '';
+    document.getElementById('range-note').style.display = 'none';
     return;
+  }
+
+  // 件数制限の注記（ハッシュタグ複数指定時のみ表示）
+  const rangeNote = document.getElementById('range-note');
+  if (urls.length > 1 && state.range > 0) {
+    rangeNote.textContent = `※ ハッシュタグ ${urls.length} 件 × 最大 ${state.range} 件 = 最大 ${urls.length * state.range} 件がダウンロードされます`;
+    rangeNote.style.display = '';
+  } else if (urls.length > 1 && state.range === 0) {
+    rangeNote.textContent = `※ ハッシュタグ ${urls.length} 件が個別に無制限でダウンロードされます`;
+    rangeNote.style.display = '';
+  } else {
+    rangeNote.style.display = 'none';
   }
 
   const fname       = buildFilenamePattern();
