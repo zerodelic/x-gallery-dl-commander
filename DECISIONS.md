@@ -5,6 +5,18 @@
 
 ---
 
+## 2026-08-19 pytestの対象を main.py のロジックのみに絞り、実プロセス起動はモック化した
+- 判断: `tests/test_main.py` では `asyncio.create_subprocess_shell` をモックして偽のプロセス（stdout行・returncodeを差し替え可能な `_FakeProcess`）を返すようにし、実際にgallery-dlを起動するテストは書かない
+- 理由: CI環境（GitHub Actions）にgallery-dl本体をインストールする手間・バージョン差異による不安定化を避けたい。main.py側で検証したいのはジョブのライフサイクル管理（生成・SSE配信・クリーンアップ・停止）であり、gallery-dl自体の動作はgallery-dl側の責務
+- 代替案: 実際にgallery-dlをCIにインストールしてE2Eテストする → 却下。Xへの実ログインが必要になり自動化が困難なため見送り
+
+## 2026-08-19 pause/resumeのOS分岐テストは sys.platform をモックせず実行環境の値をそのまま使う
+- 判断: `test_pause_platform_gating` 等は `monkeypatch.setattr(sys, "platform", ...)` で偽装せず、CI実行環境（windows-latest / macos-latest）の実際の `sys.platform` に応じてテスト内の期待値を分岐させる
+- 理由: モックで偽装すると「Windowsだと信じ込ませたLinux上のテスト」になり、実際のOS依存動作を検証したことにならない。GitHub Actionsのマトリクスで実Windows・実Mac双方のランナーを使う今回の構成なら、モックせずに実環境の分岐を検証する方が意味がある
+- 代替案: モックで両分岐を1ランナーで検証 → 却下。実行速度は上がるが、実OSでの検証という今回の目的（Windows作業がMacを壊していないかの自動検知）に反する
+
+---
+
 ## 2026-08-19 Windows対応: シェル文字列生成をやめ、argvリスト実行に移行する方針を決定
 - 判断: `app/index.html` + `app/main.py` の実行経路は、シェル文字列を組み立てて `create_subprocess_shell` に渡す方式をやめ、引数配列を組み立てて `create_subprocess_exec` に渡す方式(シェルを介さない)に移行する。`src/gallery-dl-commander.html` と `editions/kraftwerk/` はコピペ専用ツール(実行機能なし)なので対象外とし、OS判定によるクォート文字切り替えのみ行う
 - 理由: 既存の `shellQuote()`(POSIXシングルクォートエスケープ)がWindowsの `cmd.exe` では引用符がそのまま文字として渡ってしまい `Unsupported URL ''https://...''` のようなエラーを起こすことを実機で確認した。シェル文字列を組み立てる限り、bash向けとcmd.exe向けでクォート方式が根本的に異なり、今後も同種の互換性バグが再発するリスクがある。argv実行にすればシェルの解釈自体が発生しないため、引用符・エスケープ・行継続(`\`)の問題が原理的に消える
