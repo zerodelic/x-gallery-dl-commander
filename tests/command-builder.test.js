@@ -35,7 +35,11 @@ describe('buildURLs', () => {
   test('# 付きハッシュタグを正規化する', () => {
     const urls = buildURLs('hashtag', '#cats');
     expect(urls[0]).toContain(encodeURIComponent('cats'));
-    expect(urls[0]).not.toContain(encodeURIComponent('#'));
+    // URLテンプレート自体が検索構文として '%23' を1つ含む仕様。
+    // 入力側の先頭 '#' が正しく除去されていれば '%23' は1回しか現れない
+    // （除去し忘れると '#cats' → '%23cats' に二重エンコードされ '%23%23cats' になる）
+    const occurrences = (urls[0].match(/%23/g) || []).length;
+    expect(occurrences).toBe(1);
   });
 
   test('ハッシュタグ未入力でnullを返す', () => {

@@ -1,0 +1,37 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Run command-builder tests (Vitest)
+        run: npm test
+
+      - name: Install Python dependencies
+        run: python -m pip install -r app/requirements.txt -r tests/requirements.txt
+
+      - name: Run backend tests (pytest)
+        run: python -m pytest tests/ -v

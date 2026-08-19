@@ -28,6 +28,13 @@ if sys.platform == "darwin":
 _gallery_dl_bin = shutil.which("gallery-dl", path=_SUBPROCESS_ENV.get("PATH")) or "gallery-dl"
 
 
+def _resolve_cmd(cmd: str) -> str:
+    """Substitute the resolved gallery-dl binary path for the literal command name."""
+    if cmd.startswith("gallery-dl"):
+        return _gallery_dl_bin + cmd[len("gallery-dl"):]
+    return cmd
+
+
 @app.get("/")
 async def index():
     return HTMLResponse(_html_content)
@@ -61,9 +68,7 @@ async def stream(job_id: str):
 
     async def generate():
         job = jobs[job_id]
-        cmd = job["cmd"]
-        if cmd.startswith("gallery-dl"):
-            cmd = _gallery_dl_bin + cmd[len("gallery-dl"):]
+        cmd = _resolve_cmd(job["cmd"])
         try:
             process = await asyncio.create_subprocess_shell(
                 cmd,
